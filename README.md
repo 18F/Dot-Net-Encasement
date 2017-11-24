@@ -180,8 +180,4 @@ In this step, we discussed:
 * Adding `dotnet watch` to a project
 * Modifying the `Startup.cs` file to add CORS support.
 
-In the [next part](../tree/part-2), we'll cover how to set up tests for Web API controllers.
-
-
-
-
+In the [next part](../../tree/part-2), we'll cover how to set up tests for Web API controllers.
