@@ -24,7 +24,7 @@ Download and install:
 * [Visual Studio Code](https://code.visualstudio.com/)
 * Visual Studio Code [C# extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp)
 
-You're ready to get started. Check out [Part 1: Creating your first Web API application](#).
+You're ready to get started. Check out [Part 1: Creating your first Web API application](tree/part-1).
 
 ## Further reading
 
