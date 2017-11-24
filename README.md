@@ -40,7 +40,7 @@ These are some resources that can supplement the steps demonstrated in this tuto
 * [Unit testing C# in .NET Core](https://docs.microsoft.com/en-us/dotnet/core/testing/unit-testing-with-dotnet-test) using `dotnet test` and xUnit 
 * [Dependency Injection](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection) in ASP.NET Core
 
-### Routing and generating response
+### Routing and generating responses
 * [Data validation](https://docs.microsoft.com/en-us/aspnet/web-api/overview/formats-and-model-binding/model-validation-in-aspnet-web-api) in ASP.NET Web API applications
 * Learn about the difference between [conventional routing](https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/routing) (using routing middleware) and [attribute routing](https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/routing#routing-mixed-ref-label) in ASP.NET MVC apps.
 * Learn more about how ASP.NET Web API [converts a return value from a controller method](https://docs.microsoft.com/en-us/aspnet/web-api/overview/getting-started-with-aspnet-web-api/action-results) into an HTTP response.
