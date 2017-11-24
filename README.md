@@ -1,6 +1,6 @@
 # .NET Core / Web API Tutorial
 
-This part of the tutorial will cover how to set up some simple tests for WebAPI Controllers. We're revisit test writing again [in the next part of the tutorial](../../tree/part-3), which will cover development of a controller to access an existing REST service.
+This part of the tutorial will cover how to set up some simple tests for WebAPI Controllers. We're revisit test writing again [in the next part of the tutorial](../tree/part-3), which will cover development of a controller to access an existing REST service.
 
 ## Part 2: Creating Web API Controller Tests
 
@@ -73,7 +73,7 @@ You can also run tests from within Visual Studio Code - notice that when you vie
 
 Using the `debug test` option will run an individual test in debug mode. You can even set breakpoints, and step through your unit test code to ensure that your test is working as anticipated.
 
-Note, this is just a basic overview of testing using [the `xunit` testing framework](https://xunit.github.io/docs/getting-started-dotnet-core).  Writing comprehensive tests is beyond the scope of this tutorial, but we'll explore more concepts related to testing in the [next part](../../tree/part-3).
+Note, this is just a basic overview of testing using [the `xunit` testing framework](https://xunit.github.io/docs/getting-started-dotnet-core).  Writing comprehensive tests is beyond the scope of this tutorial, but we'll explore more concepts related to testing in the [next part](../tree/part-3).
 
 ## Review
 
@@ -82,7 +82,7 @@ In this step, we discussed:
 * Writing basic unit tests for Web API controllers.
 * Running test using the `dotnet` CLI and from within Visual Studio Code.
 
-In the [next part](../../tree/part-3), we'll cover how to set up tests for Web API controllers.
+In the [next part](../tree/part-3), we'll cover how to set up tests for Web API controllers.
 
 
 
