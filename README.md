@@ -1,54 +1,187 @@
 # .NET Core / Web API Tutorial
 
-## Introduction
+## Part 1: Setting up a new Web API application
 
-This repo contains sample code and instructions for creating a RESTful API using .NET Core Web API to act as a proxy for various data sources (REST API, SOAP API, PostgreSQL data base, SQL Server database). It is designed for people that have some coding experience and are comfortable building APIUs that are interested in learning more [C#](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/) and [.NET Core](https://docs.microsoft.com/en-us/dotnet/core/).
+Open a terminal, and Navigate to a new directory. Create a set of parallel directories to hold your new Web API application and test:
 
-Each step in this tutorial explains how the different pieces of the Web API application are constructed put together, and provides an introduction to some key concepts for working with **C#**, **.NET Core** and **Web API**.
+```bash
+$ mkdir WebApi WebApi.Tests
+```
 
-## Motivation
+Navigate to the `WebApi` directory and create a new Web API application using the [.NET Core command line interface](https://docs.microsoft.com/en-us/dotnet/core/tools/?tabs=netcore2x) (CLI):
 
-In our work on legacy modernization projects, .NET and the Microsoft software stack are technologies we encounter often. These components are typically already used in the states and agencies we work with, which can make them a convenient choice for supporting modernization efforts. But beyond the tactical advantage of using a platform that our partners are already invested in and familiar with, .NET Core and related components have a number of features that can make them a solid choice for this work. Organizational proclivity for other technologies may not make .NET an obvious choice in some instances where it could be the more optimal fit.
+```bash
+$ cd WebApi
+$ dotnet new webapi
+```
 
-[ASP.NET Web API](https://www.asp.net/web-api) is a framework that can be used to create RESTful web services, which are often [central to our efforts to modernize legacy systems](https://18f.gsa.gov/2014/09/08/the-encasement-strategy-on-legacy-systems-and-the/). Building a Web API application is a good way to learn to write C# code, to become familiar with .NET Core, and to get accustomed to working with some associated tools (e.g., Visual Studio Code). 
+This will bootstrap a simple Web API application that you can work with. You can continue to use your open terminal, or you can use the integrated terminal view in Visual Studio Code (open using the **control** + **\`** keys, or from the top menu via `View` > `Integrated Terminal`).
 
-## Structure
+Make sure you can run your new Web API application:
 
-This tutorial is structured around git branches. Each step in the tutorial is contained within a distinct branch. If you are using the Github website, each step in the tutorial is linked from the `README` document in the previous step. To get the entire tutorial, and all of the related example code, just clone this repo. 
+```bash
+$ dotnet run
+```
 
-## Getting Started
+Open a web browser and point to `http://localhost:5000/api/values` and you should see some JSON.
 
-Download and install:
+## Modifying your new Web API application
 
-* [.NET Core SDK](https://www.microsoft.com/net/learn/get-started/macos)
-* [Visual Studio Code](https://code.visualstudio.com/)
-* Visual Studio Code [C# extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp)
+In the `Controllers` directory, open the file `ValuesVController.cs`. This is an example file created by the .NET Core CLI tool that renders the JSON you just saw in your browser. Notice the route attribute on the `ValuesController` class:
 
-You're ready to get started. Check out [Part 1: Creating your first Web API application](#).
+```csharp
+[Route("api/[controller]")]
+```
 
-## Further reading
+This attribute routes requests to your Web API application using the path `/api` + the name of the controller (without the "Controller" part). So requests to `http://{host}/api/values` will be handled by this controller. Attribute routing isn't the only way to route requests in a Web API application, but this approach does have [some advantages](https://docs.microsoft.com/en-us/aspnet/web-api/overview/web-api-routing-and-actions/attribute-routing-in-web-api-2#why-attribute-routing) when building RESTful APIs.
 
-These are some resources that can supplement the steps demonstrated in this tutorial and provide deeper insights into .NET Core and Web API.
+You can further define how specific routes are handled by using attributes on specific methods. For example, notice the attribute used on one of the Get methods:
 
-### General
-* [General overview](https://docs.microsoft.com/en-us/aspnet/core/tutorials/web-api-vsc) of how to create a Web API with ASP.NET Core MVC on MacOS.
-* [Asynchronous programming](https://docs.microsoft.com/en-us/dotnet/csharp/async) in C#.
-* [Video archive](https://channel9.msdn.com/Events/dotnetconf/2017) of .NET Conf 2017
+```csharp
+[HttpGet("{id}")]
+public string Get(int id)
+{
+    return "value";
+}
+```
 
-### Testing
-* [Testing controller logic](https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/testing) in ASP.NET Core
-* [Unit testing C# in .NET Core](https://docs.microsoft.com/en-us/dotnet/core/testing/unit-testing-with-dotnet-test) using `dotnet test` and xUnit 
-* [Dependency Injection](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection) in ASP.NET Core
+This attribute matches GET requests for routes with an `id` value to this specific method. Try accessing `http://localhost:5000/api/values/5` in your browser. You'll see the string "value" returned. 
 
-### Routing and generating response
-* [Data validation](https://docs.microsoft.com/en-us/aspnet/web-api/overview/formats-and-model-binding/model-validation-in-aspnet-web-api) in ASP.NET Web API applications
-* Learn about the difference between [conventional routing](https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/routing) (using routing middleware) and [attribute routing](https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/routing#routing-mixed-ref-label) in ASP.NET MVC apps.
-* Learn more about how ASP.NET Web API [converts a return value from a controller method](https://docs.microsoft.com/en-us/aspnet/web-api/overview/getting-started-with-aspnet-web-api/action-results) into an HTTP response.
+We can change the path that will match this method by altering the HttpGet attribute. Make the following change, save it, and restart your application:
 
-### Data access / SQL Server
-* [Data access](https://blogs.msdn.microsoft.com/dotnet/2016/11/09/net-core-data-access/) in .NET Core
-* Use Visual Studio Code to [create and run Transact-SQL scripts for SQL Server](https://docs.microsoft.com/en-us/sql/linux/sql-server-linux-develop-use-vscode)
+```csharp
+[HttpGet("value/{id}")]
+public string Get(int id)
+{
+    return "value";
+}
+```
 
-### Docker
-* .NET Core [Docker images](Official images for .NET Core for Linux and Windows Server 2016 Nano Server)
-* Overview of how to run the [SQL Server 2017 container image](https://docs.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker) in Docker
+Now this method is invoked when you access `http://localhost:5000/api/values/value/5` in your browser. In addition, Web API will [bind parameters to variables](https://docs.microsoft.com/en-us/aspnet/web-api/overview/formats-and-model-binding/parameter-binding-in-aspnet-web-api) so that we can access parameter values inside methods. Instead of just returning the string "value" from our method, let's return the value if the `id` variable. Make the following change, save it,  and restart your application:
+
+```csharp
+[HttpGet("value/{id}")]
+public Object Get(int id)
+{
+    return new { value = id }; 
+}
+```
+
+Now, access `http://localhost:5000/api/values/value/5` in your web browser. Since we changed the return type of the method from `string` to `Object` we can use object literal notation in C# to return a new anonymous type. Web API will automatically convert this return value to JSON when it renders the output. Try looking at the **Content-type** header in the response when you access the same route:
+
+```bash
+$ curl -v http://localhost:5000/api/values/value/5
+*   Trying ::1...
+* TCP_NODELAY set
+* Connected to localhost (::1) port 5000 (#0)
+> GET /api/values/value/5 HTTP/1.1
+> Host: localhost:5000
+> User-Agent: curl/7.54.0
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< Date: Fri, 24 Nov 2017 14:28:46 GMT
+< Content-Type: application/json; charset=utf-8
+< Server: Kestrel
+< Transfer-Encoding: chunked
+< 
+* Connection #0 to host localhost left intact
+{"value":5}
+```
+
+## Setting up watcher
+
+You may have noticed that we stopped and restarted our application several times as we made these changes. As you work on your Web API application, this may become more of an inconvenience. To automatically restart your application when changes are made, we'll need to [set up `dotnet watch`](https://github.com/aspnet/DotNetTools/tree/dev/src/Microsoft.DotNet.Watcher.Tools#how-to-install).
+
+Open the file `WebApi.csproj` and add a new `<DotNetCliToolReference/>` item for the watcher tool:
+
+```xml
+<ItemGroup>
+    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
+    <DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="2.0.0" />
+</ItemGroup>
+```
+
+In your integrated terminal type `dotnet restore` in your terminal. You can now invoke the watcher tool when running your Web API app like so:
+
+```bash
+$ dotnet watch run
+```
+
+Now, when we change our method, the watcher will automatically pick up the change to the `ValuesController.cs` file and restart your application. Make the following changes, and save the `ValuesController.cs` file.
+
+```csharp
+[HttpGet("value/{id}")]
+public Object Get(int id)
+{
+    return new { value1 = id , value2 = (id*2)}; 
+}
+```
+
+With watcher running, you can see these changes in your browser without manually restarting your Web API application.
+
+## Adding CORS support
+
+Now that we understand how requests are routed, parameters are bound and values returned, let's add some additional functionality that will be needed by our Web API application. 
+
+You may have noticed that when we bootstrapped our Web API application, a directory called `wwwroot` was created. This is typically where [static resources are stored and served from](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/static-files). We're not going to be using static files that access the RESTful API we're creating - instead, we're going to create an API that serves requests from other hosts. To do this, we'll need to enable [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS). To do this, we need to modify the file `Startup.cs`.
+
+Open the `Startup.cs` file and add the following to the `ConfigureServices` method before the call to `services.AddMvc();`:
+
+```csharp
+services.AddCors(options =>
+    {
+        options.AddPolicy("CorsPolicy",
+            builder => builder.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
+    });
+```
+
+This defines the CORS policy that your Web API app will use when handling requests. Next, in the `Configure` method, add the following before the call to `app.UseMvc()`:
+
+```csharp
+ app.UseCors("CorsPolicy");
+ ```
+
+ Now, when your app responds to requests from external hosts, it should send the appropriate CORS headers:
+
+```bash
+$ curl -v -H 'Origin: http://some-fake-host.com' http://localhost:5000/api/values/value/5
+*   Trying ::1...
+* TCP_NODELAY set
+* Connected to localhost (::1) port 5000 (#0)
+> GET /api/values/value/5 HTTP/1.1
+> Host: localhost:5000
+> User-Agent: curl/7.54.0
+> Accept: */*
+> Origin: http://some-fake-host.com
+> 
+< HTTP/1.1 200 OK
+< Date: Fri, 24 Nov 2017 15:17:08 GMT
+< Content-Type: application/json; charset=utf-8
+< Server: Kestrel
+< Transfer-Encoding: chunked
+< Vary: Origin
+< Access-Control-Allow-Credentials: true
+< Access-Control-Allow-Origin: http://some-fake-host.com
+< 
+* Connection #0 to host localhost left intact
+{"value1":5,"value2":10}
+```
+
+## Review
+
+In this step, we discussed:
+
+* Attribute routing
+* Parameter binding
+* Adding `dotnet watch` to a project
+* Modifying the `Startup.cs` file to add CORS support.
+
+In the next step, we'll cover how to set up tests for Web API controllers.
+
+
+
+
