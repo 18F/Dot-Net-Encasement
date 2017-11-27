@@ -16,6 +16,15 @@ In our work on legacy modernization projects, .NET and the Microsoft software st
 
 This tutorial is structured around git branches. Each step in the tutorial is contained within a distinct branch. If you are using the Github website, each step in the tutorial is linked from the `README` document in the previous step. To get the entire tutorial, and all of the related example code, just clone this repo. 
 
+* [Introduction](https://github.com/mheadd/WebApiTutorial/tree/master)
+* Part 1: [Setting up a new Web API application](https://github.com/mheadd/WebApiTutorial/tree/part-1)
+* Part 2: [Creating Web API Controller Tests](https://github.com/mheadd/WebApiTutorial/tree/part-2)
+* Part 3: [Creating a REST Controller](https://github.com/mheadd/WebApiTutorial/tree/part-3)
+* Part 4: Creating a SOAP Controller
+* Part 5: Creating a SQL Controller (Entity Framework / SQL Server)
+* Part 6: Creating a SQL Controller (PostreSQL)
+* Part 7: Configuration Management in Web API.
+
 ## Getting Started
 
 Download and install:
