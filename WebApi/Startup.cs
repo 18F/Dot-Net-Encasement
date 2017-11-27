@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using WebApiTutorial.Connectors;
 
 namespace WebApi
 {
@@ -23,6 +19,10 @@ namespace WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Dependency Injection for RestController.
+            var rest_endpoint = Environment.GetEnvironmentVariable("REST_URI") ?? "https://catalog.data.gov";
+            services.AddSingleton<IRestConnector>(new RestConnector(new Uri(rest_endpoint)));
+
             // Define CORS policy.
             services.AddCors(options =>
                 {
