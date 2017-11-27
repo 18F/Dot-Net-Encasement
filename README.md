@@ -2,7 +2,7 @@
 
 This part of the tutorial will cover development of a controller to access an existing legacy REST service.
 
-## Part 2: Creating a REST Controller
+## Part 3: Creating a REST Controller
 
 To demonstrate how to build a service that can sit in front of an existing REST service, we'll use the API's built into the [Data.gov site](https://www.data.gov/). This site is built on the open source CKAN platform, so it's APIs are [well documented](http://docs.ckan.org/en/latest/api/) and well understood.
 
