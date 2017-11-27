@@ -285,6 +285,10 @@ Next, we create a test method for each public method in our REST controller. For
 
 If you run `dotnet test`, all tests should pass.
 
+Creating comprehensive tests for asynchronous methods is beyond the scope of this tutorial, but there are some [good resources available](https://msdn.microsoft.com/en-us/magazine/dn818493.aspx) for diving more deeply into this topic. In addition to the approach discussed here, you can also use [testing frameworks](https://www.nuget.org/packages/Moq/) to create mock objects for use in your asynchronous tests.
+
+## Registering Dependency Injection
+
 Now that we've created a separate connector class for our legacy REST API, and added dependency injection to our controller, we need to register our use of dependency injection with the Web API framework. Open the `Startup.cs` file and add a new using statement for the `Connectors` namespace.
 
 ```csharp
