@@ -2,15 +2,15 @@
 
 ## Introduction
 
-This repo contains sample code and instructions for creating a RESTful API using .NET Core Web API to act as a proxy for various data sources (REST API, SOAP API, PostgreSQL data base, SQL Server database). It is designed for people that have some coding experience and are comfortable building APIUs that are interested in learning more [C#](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/) and [.NET Core](https://docs.microsoft.com/en-us/dotnet/core/).
+This repo contains sample code and instructions for creating a RESTful API using .NET Core Web API to act as a proxy for various legacy data sources (REST API, SOAP API, PostgreSQL data base, SQL Server database). It is designed for people that have some coding experience and are comfortable building APIs that are interested in learning more [C#](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/) and [.NET Core](https://docs.microsoft.com/en-us/dotnet/core/).
 
-Each step in this tutorial explains how the different pieces of the Web API application are constructed put together, and provides an introduction to some key concepts for working with **C#**, **.NET Core** and **Web API**.
+Each step in this tutorial explains how the different pieces of the Web API application are constructed, and provides an introduction to some foundational concepts for working with **C#**, **.NET Core** and **Web API**.
 
 ## Motivation
 
-In our work on legacy modernization projects, .NET and the Microsoft software stack are technologies we encounter often. These components are typically already used in the states and agencies we work with, which can make them a convenient choice for supporting modernization efforts. But beyond the tactical advantage of using a platform that our partners are already invested in and familiar with, .NET Core and related components have a number of features that can make them a solid choice for this work. Organizational proclivity for other technologies may not make .NET an obvious choice in some instances where it could be the more optimal fit.
+In our work on legacy modernization projects, .NET and the Microsoft software stack are technologies we encounter often. These components are typically already used in the states and federal agencies we work with, which can make them a convenient choice for supporting legacy modernization efforts. But beyond the tactical advantage of using a platform that our partners are already invested in and familiar with, .NET Core and related components have a number of features that can make them a solid choice for this work. Organizational proclivity for other technologies may not make .NET an obvious choice in some instances where it might be the more optimal fit.
 
-[ASP.NET Web API](https://www.asp.net/web-api) is a framework that can be used to create RESTful web services, which are often [central to our efforts to modernize legacy systems](https://18f.gsa.gov/2014/09/08/the-encasement-strategy-on-legacy-systems-and-the/). Building a Web API application is a good way to learn to write C# code, to become familiar with .NET Core, and to get accustomed to working with some associated tools (e.g., Visual Studio Code). 
+[ASP.NET Web API](https://www.asp.net/web-api) is a framework that can be used to create RESTful web services, which are often [central to our efforts to modernize legacy systems](https://18f.gsa.gov/2014/09/08/the-encasement-strategy-on-legacy-systems-and-the/). Building a Web API application is a good way to learn to write C# code, to become familiar with .NET Core, and to get accustomed to working with some associated tools like Visual Studio Code. 
 
 ## Structure
 
