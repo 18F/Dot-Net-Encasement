@@ -27,7 +27,7 @@ Open a web browser and point to `http://localhost:5000/api/values` and you shoul
 
 ## Modifying your new Web API application
 
-In the `Controllers` directory, open the file `ValuesVController.cs`. This is an example file created by the .NET Core CLI tool that renders the JSON you just saw in your browser. Notice the route attribute on the `ValuesController` class:
+In the `Controllers` directory, open the file `ValuesController.cs`. This is an example file created by the .NET Core CLI tool that renders the JSON you just saw in your browser. Notice the route attribute on the `ValuesController` class:
 
 ```csharp
 [Route("api/[controller]")]
@@ -47,7 +47,7 @@ public string Get(int id)
 
 This attribute matches GET requests for routes with an `id` value to this specific method. Try accessing `http://localhost:5000/api/values/5` in your browser. You'll see the string "value" returned. 
 
-We can change the path that will match this method by altering the HttpGet attribute. Make the following change, save it, and restart your application:
+We can change the path that will match this method by altering the `HttpGet` attribute. Make the following change, save it, and restart your application:
 
 ```csharp
 [HttpGet("value/{id}")]
@@ -57,7 +57,7 @@ public string Get(int id)
 }
 ```
 
-Now this method is invoked when you access `http://localhost:5000/api/values/value/5` in your browser. In addition, Web API will [bind parameters to variables](https://docs.microsoft.com/en-us/aspnet/web-api/overview/formats-and-model-binding/parameter-binding-in-aspnet-web-api) so that we can access parameter values inside methods. Instead of just returning the string "value" from our method, let's return the value if the `id` variable. Make the following change, save it,  and restart your application:
+Now this method is invoked when you access `http://localhost:5000/api/values/value/5` in your browser. In addition, Web API will [bind parameters to variables](https://docs.microsoft.com/en-us/aspnet/web-api/overview/formats-and-model-binding/parameter-binding-in-aspnet-web-api) so that we can access parameter values inside methods. Instead of just returning the string "value" from our method, let's return the value in the `id` variable. Make the following change, save it,  and restart your application:
 
 ```csharp
 [HttpGet("value/{id}")]
@@ -93,7 +93,7 @@ $ curl -v http://localhost:5000/api/values/value/5
 
 You may have noticed that we stopped and restarted our application several times as we made these changes. As you work on your Web API application, this may become more of an inconvenience. To automatically restart your application when changes are made, we'll need to [set up `dotnet watch`](https://github.com/aspnet/DotNetTools/tree/dev/src/Microsoft.DotNet.Watcher.Tools#how-to-install).
 
-Open the file `WebApi.csproj` and add a new `<DotNetCliToolReference/>` item for the watcher tool:
+Open the file `WebApi.csproj` and add a new `<DotNetCliToolReference/>` item for the watcher utility:
 
 ```xml
 <ItemGroup>
@@ -102,13 +102,13 @@ Open the file `WebApi.csproj` and add a new `<DotNetCliToolReference/>` item for
 </ItemGroup>
 ```
 
-In your integrated terminal type `dotnet restore` in your terminal. You can now invoke the watcher tool when running your Web API app like so:
+In your integrated terminal type `dotnet restore`. You can now invoke the watcher tool when running your Web API app like this:
 
 ```bash
 $ dotnet watch run
 ```
 
-Now, when we change our method, the watcher will automatically pick up the change to the `ValuesController.cs` file and restart your application. Make the following changes, and save the `ValuesController.cs` file.
+Now, when we change our method, the watcher will automatically pick up the change to the `ValuesController.cs` file and restart your application. To demonstrate, make the following changes to the `ValuesController.cs` file and save your changes.
 
 ```csharp
 [HttpGet("value/{id}")]
@@ -122,9 +122,9 @@ With watcher running, you can see these changes in your browser without manually
 
 ## Adding CORS support
 
-Now that we understand how requests are routed, parameters are bound and values returned, let's add some additional functionality that will be needed by our Web API application. 
+Now that we understand how requests are routed and how parameters are bound and values returned, let's add some additional functionality that will be needed by our Web API application. 
 
-You may have noticed that when we bootstrapped our Web API application, a directory called `wwwroot` was created. This is typically where [static resources are stored and served from](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/static-files). We're not going to be using static files that access the RESTful API we're creating - instead, we're going to create an API that serves requests from other hosts. To do this, we'll need to enable [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS). To do this, we need to modify the file `Startup.cs`.
+You may have noticed that when we bootstrapped our Web API application, a directory called `wwwroot` was created. This is typically where [static resources are stored](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/static-files). We're not going to be using static files that access the RESTful API we're creating - instead, we're going to create an API that serves requests from other hosts. To do this, we'll need to enable [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS). To do this, we need to modify the file `Startup.cs`.
 
 Open the `Startup.cs` file and add the following to the `ConfigureServices` method before the call to `services.AddMvc();`:
 
@@ -139,7 +139,7 @@ services.AddCors(options =>
     });
 ```
 
-This defines the CORS policy that your Web API app will use when handling requests. Next, in the `Configure` method, add the following before the call to `app.UseMvc()`:
+This defines a CORS policy that your Web API app will use when handling requests. Next, in the `Configure` method, add the following before the call to `app.UseMvc()`:
 
 ```csharp
  app.UseCors("CorsPolicy");
