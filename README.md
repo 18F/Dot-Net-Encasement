@@ -1,6 +1,6 @@
 # .NET Core / Web API Tutorial
 
-This part of the tutorial will cover how to set up some simple tests for WebAPI Controllers. We're revisit test writing again [in the next part of the tutorial](../../treepart-3), which will cover development of a controller to access an existing REST service.
+This part of the tutorial will show how to set up some simple tests for WebAPI Controllers. We'll revisit test writing again [in the next part of the tutorial](../../tree/part-3), which will cover development of a controller to access an existing REST service.
 
 ## Part 2: Creating Web API Controller Tests
 
@@ -16,7 +16,7 @@ Change the name of the generated test file to `ValuesControllerTests.cs` to be e
 $ dotnet add reference ../WebApi/WebApi.csproj
 ```
 
-In the test file, change the name of the newly created class  - a good convention to use is to name your class based on the controller being tested. In this case, we'll use `ValuesControllerTests`. You'll also need to add a `using` statement to reference the assembly containing the controller you want to test. 
+In the test file, change the name of the newly created class - a useful convention to use is to name your class based on the controller yu are writing tests for. In this case, we'll use `ValuesControllerTests`. You'll also need to add a `using` statement to reference the assembly containing the controller you want to test. 
 
 Next, add a new method for each controller method you want to test (in this example, we'll only add two tests for the two `Get()` methods we talked about in the last part of this tutorial). Each test method is adorned with a `[Fact]` attribute. 
 
