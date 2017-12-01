@@ -2,7 +2,7 @@
 
 ## Part 1: Setting up a new Web API application
 
-Open a terminal, and Navigate to a new directory. Create a set of parallel directories to hold your new Web API application and test:
+Open a terminal, and Navigate to a new directory. Create a set of parallel directories to hold your new Web API application and tests:
 
 ```bash
 $ mkdir WebApi WebApi.Tests
