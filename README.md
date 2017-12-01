@@ -11,7 +11,6 @@ We'll create a controller that can be used to query the Data.gov site, and retur
 Navigate to the `WebApi` directory and create a new controller called `RestController.cs`:
 
 ```bash
-$ cd WebApi
 $ touch Controllers/RestController.cs
 ```
 
@@ -23,7 +22,7 @@ $ dotnet add package Newtonsoft.Json
 
 When promoted in Visual Studio Code, restore dependencies. Otherwise, do `dotnet restore` in the integrated terminal.
 
-As we saw in the previous part, the WebAPI framework will automatically render .NET objects as JSON when generating a response, but we want to use the [Json.Net package](https://www.newtonsoft.com/json) to manipulate and change the response from the Data.gov CKAN API. (We'll also use this package to generate JSON from other types of backend systems in future parts of this tutorial.)
+As we saw in the previous part, the WebAPI framework will automatically render .NET objects as JSON when generating a response, but we want to use the [Json.Net package](https://www.newtonsoft.com/json) to manipulate and change the JSON response from the Data.gov CKAN API. (We'll also use this package to generate JSON from other types of backend systems in future parts of this tutorial.)
 
 Add the following to your `RestController.cs` file:
 
@@ -47,7 +46,6 @@ namespace WebApiReferenceApp.Controllers
         // Path to show package details.
         private string packageDetails = "/api/3/action/package_show?id={0}";
 
-        // GET api/rest/search
         [HttpGet("search")]
         public ContentResult Get()
         {
@@ -55,7 +53,6 @@ namespace WebApiReferenceApp.Controllers
             return Content(response, "application/json");
         }
 
-        // GET api/rest/details?id=
         [HttpGet("details")]
         public ContentResult Get(string id)
         {
@@ -91,17 +88,17 @@ namespace WebApiReferenceApp.Controllers
 }
 ```
 
-This file has three private class members that hold the URL and paths for the REST calls we want to make. There are two public methods for listing packages in the Data.gov site, and for showing the details of a specific package. Both methods use [attribute routing](../..//tree/part-1#modifying-your-new-web-api-application) as discussed in previous section.
+This file has three private class members that hold the URL and paths for the Data.gov calls we want to make. There are two public methods - one for listing packages in the Data.gov site, and one for showing the details of a specific package. Both methods use [attribute routing](../..//tree/part-1#modifying-your-new-web-api-application) as discussed in the previous section.
 
 We use a private method to make the API call to the Data.gov API. This private method uses the [C# `HttpClient` class](https://msdn.microsoft.com/en-us/library/system.net.http.httpclient(v=vs.118).aspx) and is structured to take advantage of .NET Core's support for [asynchronous programming](https://docs.microsoft.com/en-us/dotnet/csharp/async).
 
-Save your changes, then you should be able to point your browser to `http://localhost:5000/api/rest/search` and see the JSON response returned by the Data.gov API. The second public method in this file takes an `id` parameter - this is the package ID for the resource provided by CKAN. We can look up the details of a specific CKAN package on Data.gov by pointing our browser to `http://localhost:5000/api/rest/details?id=000f1c44-a0b8-402f-8d4b-a4b66dfb7734`. 
+Save your changes, then you should be able to point your browser to `http://localhost:5000/api/rest/search` and see part of the JSON response returned by the Data.gov API. The second public method in this file takes an `id` parameter - this is the package ID for the resource provided by a CKAN API. We can look up the details of a specific CKAN package on Data.gov by pointing our browser to `http://localhost:5000/api/rest/details?id=000f1c44-a0b8-402f-8d4b-a4b66dfb7734`. 
 
 ## Testing and Dependency Injection
 
-This REST controller works fine as it is, but if we want to write tests for this controller things get more complicated. We want to write tests that ensure that the controller returns the correct response type, not whether the Data.gov API is responding to requests. As things are we can't do this right now. To make this possible, we need to introduce [dependency injection](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection) into our controller.
+This REST controller works fine as it is, but if we want to write tests for this controller things get more complicated. We want to write tests that ensure that the controller behaves the way we expect it to, not whether the Data.gov API is responding to requests. As things are we can't do this right now. To make this possible, we need to introduce [dependency injection](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection) into our REST controller.
 
-In the `WebApi` directory, create a new subdirectory called `Connectors` - we'll use this for classes that hold the logic needed to make connections to various backend systems. Create a new file in this subdirectory called `RestConnector.cs`.
+In the `WebApi` directory, create a new subdirectory called `Connectors` - we'll use this going forward for classes that hold the logic needed to make connections to various backend systems. Create a new file in this subdirectory called `RestConnector.cs`.
 
 ```bash
 $ mkdir Connectors
@@ -151,9 +148,9 @@ namespace WebApiTutorial.Connectors
 }
 ```
 
-This file contains a new [interface](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/interface) - `IRestConnector` - as well as a class that implements from this interface. This derived class will be used to make API calls for our REST controller.
+This file contains a new [interface](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/interface) - `IRestConnector` - as well as a class that implements this interface. This derived class will be used to make API calls for our REST controller.
 
-Now we need to modify our `RestController.cs` to use this new connector.
+Now we need to modify our `RestController.cs` to use this new connector class.
 
 ```csharp
 using System;
@@ -213,7 +210,7 @@ namespace WebApiTutorial.Controllers
 }
 ```
 
-Notice that we've added a new `using` statement for our connector class. We've also added a private class member of type `IRestConnector`, and added a parameter to the class constructor that requires a connector class to be passed in when instantiated (thereby injecting the dependency into the class).
+Notice that we've added a new `using` statement for our connector class. We've also added a private class member of type `IRestConnector`, and added a parameter to the class constructor that requires a connector class to be passed in when instantiated (thereby injecting the dependency into the `RestController` class).
 
 ## Writing Tests
 
@@ -281,15 +278,15 @@ namespace WebApi.Tests
 
 At the top of the file, we set up a simple utility object that implements the `IRestConnector` interface. This mock object will allow us to ensure that our REST controller is returning the proper response in a way that isn't tied directly to the Data.gov API.
 
-Next, we create a test method for each public method in our REST controller. For each test, we instantiate an instance of our mock connector, and use it to set up our controller test. Each test is constructed using the assemble / act / assert construct we used in the [last part of this tutorial](../../tree/part-2#part-2-creating-web-api-controller-tests) when testing was discussed.
+Next, we create a test method for each public method in our REST controller. For each test, we instantiate an instance of our mock connector, and use it to set up our controller test. Each test is constructed using the *assemble* / *act* / *assert* construct we used in the [last part of this tutorial](../../tree/part-2#part-2-creating-web-api-controller-tests) when testing was discussed.
 
-If you run `dotnet test`, all tests should pass.
+If you run `dotnet test` in the integrated terminal, all tests should pass.
 
 Creating comprehensive tests for asynchronous logic is beyond the scope of this tutorial, but there are some [good resources available](https://msdn.microsoft.com/en-us/magazine/dn818493.aspx) for diving more deeply into this topic. In addition to the approach discussed here, you can also use [testing frameworks](https://www.nuget.org/packages/Moq/) to create mock objects for use in your asynchronous tests.
 
 ## Registering Dependency Injection
 
-Now that we've created a separate connector class for our legacy REST API, and added dependency injection to our controller, we need to register our use of dependency injection with the Web API framework. Change to the `WebApi` directory and open the `Startup.cs` file. 
+Now that we've created a separate connector class for our legacy REST API, and added dependency injection to our controller, we need to register our use of dependency injection with the Web API framework. Change back to the `WebApi` directory and open the `Startup.cs` file. 
 
 Add a new using statement for the `Connectors` namespace.
 
@@ -304,7 +301,7 @@ var rest_endpoint = Environment.GetEnvironmentVariable("REST_URI") ?? "https://c
 services.AddSingleton<IRestConnector>(new RestConnector(new Uri(rest_endpoint)));
 ```
 
-This will create a new variable for the endpoint to use in the REST controller getting the value from an environmental variable called `REST_URI` (if it exists) or the string `https://catalog.data.gov`. We then use this variable to a create new RestConnector instance and register it with the WebAPI framework via the `services.AddSingleton` method.
+This will create a new variable for the endpoint to use in the REST controller - getting the value from an environmental variable called `REST_URI` (if it exists), or the string `https://catalog.data.gov`. We then use this variable to a create new RestConnector instance and register it with the WebAPI framework via the `services.AddSingleton` method.
 
 So now, when you point your web browser at `http://localhost:5000/api/rest/search` you'll see the expected JSON response.
 
