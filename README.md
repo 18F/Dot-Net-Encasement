@@ -1,227 +1,129 @@
 # .NET Core / Web API Tutorial
 
-This part of the tutorial will cover development of a controller to access an existing legacy REST service.
+This part of the tutorial will cover development of a controller to access an existing legacy SOAP service.
 
-## Part 3: Creating a REST Controller
+## Part 3: Creating a SOAP Connector Class
 
-To demonstrate how to build a service that can sit in front of an existing REST service, we'll use the API's built into the [Data.gov site](https://www.data.gov/). This site is built on the open source CKAN platform, so it's APIs are [well documented](http://docs.ckan.org/en/latest/api/) and well understood.
-
-We'll create a controller that can be used to query the Data.gov site, and return a portion of the raw response from the CKAN API. This might match a use case you would encounter if you had an existing legacy service that you wanted to query and return only part of, or if you wanted to query an existing service and combine part of the response with data from another service or backend system.
-
-Navigate to the `WebApi` directory and create a new controller called `RestController.cs`:
+To access a SOAP service, we'll want to use a new package from the [Nuget](https://www.nuget.org/packages/SoapHttpClient/) repository. In the integrated terminal, install the `SoapHttpClient` package (when prompted, restore dependencies after installing):
 
 ```bash
-$ touch Controllers/RestController.cs
+$cd WebApi
+$ dotnet add package SoapHttpClient
 ```
 
-Open the integrated terminal and install a new package:
+In the `Connectors` directory create a new class for a SOAP connector:
 
 ```bash
-$ dotnet add package Newtonsoft.Json
+$ touch Connectors/SoapConnector.cs
 ```
 
-When promoted in Visual Studio Code, restore dependencies. Otherwise, do `dotnet restore` in the integrated terminal.
-
-As we saw in the previous part, the WebAPI framework will automatically render .NET objects as JSON when generating a response, but we want to use the [Json.Net package](https://www.newtonsoft.com/json) to manipulate and change the JSON response from the Data.gov CKAN API. (We'll also use this package to generate JSON from other types of backend systems in future parts of this tutorial.)
-
-Add the following to your `RestController.cs` file:
+In the new `SoapConnector.cs` file, add the following:
 
 ```csharp
 using System;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
+using System.Xml.Linq;
+using SoapHttpClient;
+using SoapHttpClient.Extensions;
+using SoapHttpClient.Enums;
 
-namespace WebApiReferenceApp.Controllers
+namespace WebApiReferenceApp.Connectors
 {
-    [Route("api/[controller]")]
-    public class RestController : Controller
+    public interface ISoapConnector
     {
-        // Data.gov API endpoint.
-        private Uri endpoint = new Uri("https://catalog.data.gov");
-        // Path to list packages.
-        private string packageSearch = "/api/3/action/package_search";
-        // Path to show package details.
-        private string packageDetails = "/api/3/action/package_show?id={0}";
-
-        [HttpGet("search")]
-        public ContentResult Get()
-        {
-            string response = GetPackageData(packageSearch);
-            return Content(response, "application/json");
-        }
-
-        [HttpGet("details")]
-        public ContentResult Get(string id)
-        {
-            string path = String.Format(packageDetails, id);
-            string response = GetPackageData(path);
-            return Content(response, "application/json");
-        }
-
-        private string GetPackageData(string path)
-        {
-            JObject result = JObject.Parse(CallServiceAsync(path).Result);
-            return result.GetValue("result").ToString();
-        }
-
-        private async Task<string> CallServiceAsync(string path)
-        {
-            using (HttpClient client = new HttpClient())
-            {
-                client.BaseAddress = endpoint;
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                try
-                {
-                    return await client.GetStringAsync(path);
-                }
-                catch (HttpRequestException ex)
-                {
-                    return String.Format(@"{{""result"": {{""error"": ""{0}""}}}}", ex.Message);
-                }
-            }
-        }
+        Task<string> CallServiceAsync(string method);
     }
-}
-```
-
-This file has three private class members that hold the URL and paths for the Data.gov calls we want to make. There are two public methods - one for listing packages in the Data.gov site, and one for showing the details of a specific package. Both methods use [attribute routing](../..//tree/part-1#modifying-your-new-web-api-application) as discussed in the previous section.
-
-We use a private method to make the API call to the Data.gov API. This private method uses the [C# `HttpClient` class](https://msdn.microsoft.com/en-us/library/system.net.http.httpclient(v=vs.118).aspx) and is structured to take advantage of .NET Core's support for [asynchronous programming](https://docs.microsoft.com/en-us/dotnet/csharp/async).
-
-Save your changes, then you should be able to point your browser to `http://localhost:5000/api/rest/search` and see part of the JSON response returned by the Data.gov API. The second public method in this file takes an `id` parameter - this is the package ID for the resource provided by a CKAN API. We can look up the details of a specific CKAN package on Data.gov by pointing our browser to `http://localhost:5000/api/rest/details?id=000f1c44-a0b8-402f-8d4b-a4b66dfb7734`. 
-
-## Testing and Dependency Injection
-
-This REST controller works fine as it is, but if we want to write tests for this controller things get more complicated. We want to write tests that ensure that the controller behaves the way we expect it to, not whether the Data.gov API is responding to requests. As things are we can't do this right now. To make this possible, we need to introduce [dependency injection](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection) into our REST controller.
-
-In the `WebApi` directory, create a new subdirectory called `Connectors` - we'll use this going forward for classes that hold the logic needed to make connections to various backend systems. Create a new file in this subdirectory called `RestConnector.cs`.
-
-```bash
-$ mkdir Connectors
-$ touch Connectors/RestConnector.cs
-```
-
-In the new `RestConnector.cs` file, add the following logic.
-
-```csharp
-using System;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
-
-namespace WebApiTutorial.Connectors
-{
-    public interface IRestConnector
+    public class SoapConnector: ISoapConnector
     {
-        Task<string> CallServiceAsync(string path);
-    }
-    public class RestConnector : IRestConnector
-    {
+        private XNamespace _ns;
         private Uri _endpoint;
-        public RestConnector(Uri endpoint)
+
+        public SoapConnector(XNamespace ns, Uri endpoint)
         {
+            _ns = ns;
             _endpoint = endpoint;
         }
 
-        public async Task<string> CallServiceAsync(string path)
+        public async Task<string> CallServiceAsync(string method)
         {
-            using (HttpClient client = new HttpClient())
+            // Construct the SOAP body
+            var body = new XElement(_ns.GetName(method));
+
+            // Make the call to the SOAP service.
+            using (var soapClient = new SoapClient())
             {
-                client.BaseAddress = _endpoint;
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                try
-                {
-                    return await client.GetStringAsync(path);
-                }
-                catch (HttpRequestException ex)
-                {
-                    return String.Format(@"{{""result"": {{""error"": ""{0}""}}}}", ex.Message);
-                }
+                var response =
+                  await soapClient.PostAsync(
+                          endpoint: _endpoint,
+                          soapVersion: SoapVersion.Soap11,
+                          body: body);
+
+                return await response.Content.ReadAsStringAsync();
             }
         }
     }
 }
 ```
 
-This file contains a new [interface](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/interface) - `IRestConnector` - as well as a class that implements this interface. This derived class will be used to make API calls for our REST controller.
+As we did with the REST connector in the last part, we start by defining an interface with a single method definition. We then implement the interface in the `SoapConnector` class. We also add some private class members for the endpoint and namespace for the SOAP service.
 
-Now we need to modify our `RestController.cs` to use this new connector class.
+## Creating a SOAP Controller
+
+Create a new controller in the `Controllers` directory for our SOAP controller:
+
+```bash
+$ touch Controllers/SoapController.cs
+```
+
+In the new `SoapController.cs` file, add the following content:
 
 ```csharp
-using System;
+using System.Xml;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 using WebApiTutorial.Connectors;
 
 namespace WebApiTutorial.Controllers
 {
     [Route("api/[controller]")]
-    public class RestController : Controller
+    public class SoapController : Controller
     {
-        // Path to list packages.
-        private string packageSearch = "/api/3/action/package_search";
-        // Path to show package details.
-        private string packageDetails = "/api/3/action/package_show?id={0}";
+        private ISoapConnector _connector;
 
-        private IRestConnector _connector;
-
-        public RestController(IRestConnector connector)
+        public SoapController(ISoapConnector connector)
         {
             _connector = connector;
         }
 
-        // GET api/rest/search
-        [HttpGet("search")]
-        public ContentResult Get()
+        // GET api/soap
+        [HttpGet]
+        public string Get()
         {
-            string response = GetPackageData(packageSearch);
-            return Content(response, "application/json");
-        }
-
-        // GET api/rest/details?id=
-        [HttpGet("details")]
-        public ContentResult Get(string id)
-        {
-            string path = String.Format(packageDetails, id);
-            string response = GetPackageData(path);
-            return Content(response, "application/json");
+            return "Not implemented";
         }
 
         /**
-         * Private method to invoke RestConnector and make API call.       
-         */
-        private string GetPackageData(string path)
+         * Private method to invoke SoapConnector and make service call.       
+        */
+        private string GetSoapResponse(string methodName)
         {
-            // Make the API call using the psecificed path.
-            var response = _connector.CallServiceAsync(path).Result;
-
-            // Parse the raw API response.
-            JObject result = JObject.Parse(response);
-
-            // Return the result.
-            return result.GetValue("result").ToString();
+            var response = _connector.CallServiceAsync(methodName);
+            return response.Result;
         }
     }
 }
 ```
 
-Notice that we've added a new `using` statement for our connector class. We've also added a private class member of type `IRestConnector`, and added a parameter to the class constructor that requires a connector class to be passed in when instantiated (thereby injecting the dependency into the `RestController` class).
-
 ## Writing Tests
 
-Before proceeding further, let's write some tests for our new controller. Change to the `WebApi.Tests` directory and create a new test file for our REST controller:
+Note that the public method exposed on this controller is not yet implemented. Before going further, let's create a test for this controller. Change over to the test directory and create a new unit test file:
 
 ```bash
 $ cd ../WebApi.Tests/
-$ touch RestControllerTests.cs
+$ touch SoapControllerTests.cs
 ```
 
-In the new `RestControllerTests.cs` file, add the following content:
+In the new `SoapControllerTests.cs`, add the following content:
 
 ```csharp
 using System.Threading.Tasks;
@@ -232,23 +134,33 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Tests
 {
-    // A test connector to use for our tests.
-    public class testConnector : IRestConnector
+    public class testSoapConnector : ISoapConnector
     {
-        public async Task<string> CallServiceAsync(string path)
-        {
-            return await Task.FromResult(@"{""result"":{""foo"": ""bar""}}");
+         private string fakeResponse = @"
+            <soap:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
+                <soap:Body>
+                    <FakeResponse xmlns=""http://somefakeurl.org/"">
+                    <FakeResult>
+                        <string>string</string>
+                    </FakeResult>
+                    </FakeResponse>
+                </soap:Body>
+            </soap:Envelope>";
+
+        public async Task<string> CallServiceAsync(string method)
+        {            
+            return await Task.FromResult(fakeResponse);
         }
     }
 
-    public class RestControllerTests
+    public class SoapControllerTests
     {
         [Fact]
         public void GetMethodTest()
         {
             // Assemble
-            IRestConnector testConnector = new testConnector();
-            RestController testController = new RestController(testConnector);
+            ISoapConnector testConnector = new testSoapConnector();
+            SoapController testController = new SoapController(testConnector);
             var expected = typeof(ContentResult);
 
             // Act
@@ -256,64 +168,65 @@ namespace WebApi.Tests
 
             // Asset
             Assert.IsType(expected, actual);
-        }
 
-        [Fact]
-        public void GetMetodWithIdTest()
-        {
-            // Assemble
-            IRestConnector testConnector = new testConnector();
-            RestController testController = new RestController(testConnector);
-            var expected = typeof(ContentResult);
-
-            // Act
-            var actual = testController.Get("000f1c44-a0b8-402f-8d4b-a4b66dfb7734");
-
-            // Asset
-            Assert.IsType(expected, actual);
         }
     }
 }
 ```
 
-At the top of the file, we set up a simple utility object that implements the `IRestConnector` interface. This mock object will allow us to ensure that our REST controller is returning the proper response in a way that isn't tied directly to the Data.gov API.
+This file contains a unit test for the public method exposed on our SOAP controller. We set up a mock object to use for this test, to mimic the response we would get from a real SOAP service. 
 
-Next, we create a test method for each public method in our REST controller. For each test, we instantiate an instance of our mock connector, and use it to set up our controller test. Each test is constructed using the *assemble* / *act* / *assert* construct we used in the [last part of this tutorial](../../tree/part-2#part-2-creating-web-api-controller-tests) when testing was discussed.
+When you run this test, it should fail. Next, we'll go back to our SOAP controller and implement the public method that will allow this test to pass.
 
-If you run `dotnet test` in the integrated terminal, all tests should pass.
+## Adding Service Details
 
-Creating comprehensive tests for asynchronous logic is beyond the scope of this tutorial, but there are some [good resources available](https://msdn.microsoft.com/en-us/magazine/dn818493.aspx) for diving more deeply into this topic. In addition to the approach discussed here, you can also use [testing frameworks](https://www.nuget.org/packages/Moq/) to create mock objects for use in your asynchronous tests.
+For this example, we're going to use a SOAP service from the US Geological Survey's [Grand Canyon Monitoring and Research Center](https://www.gcmrc.gov/). The details of the SOAP service can be [found here](https://www.gcmrc.gov/WebService.asmx). We're going to target the `GetLanguageList` method, which presumably just returns a list of languages.
 
-## Registering Dependency Injection
-
-Now that we've created a separate connector class for our legacy REST API, and added dependency injection to our controller, we need to register our use of dependency injection with the Web API framework. Change back to the `WebApi` directory and open the `Startup.cs` file. 
-
-Add a new using statement for the `Connectors` namespace.
+In the `SoapControllerTests.cs` file, edit the class to add a new private member to hold the name of the method we want to invoke (note - we'll revisit this when we talk about configuration for Web API applications in a future part of this tutorial):
 
 ```csharp
-using WebApiTutorial.Connectors;
-``` 
-
-In the `ConfigureServices` method, add the following:
-
-```csharp
-var rest_endpoint = Environment.GetEnvironmentVariable("REST_URI") ?? "https://catalog.data.gov";
-services.AddSingleton<IRestConnector>(new RestConnector(new Uri(rest_endpoint)));
+private string _methodName = "GetLanguageList";
 ```
 
-This will create a new variable for the endpoint to use in the REST controller - getting the value from an environmental variable called `REST_URI` (if it exists), or the string `https://catalog.data.gov`. We then use this variable to a create new RestConnector instance and register it with the WebAPI framework via the `services.AddSingleton` method.
+Now, edit the public method `ContentResult` to call the SOAP service and format the response:
 
-So now, when you point your web browser at `http://localhost:5000/api/rest/search` you'll see the expected JSON response.
+```csharp
+public ContentResult Get(string methodName)
+{
+    XmlDocument doc = new XmlDocument();
+    doc.LoadXml(GetSoapResponse(_methodName));
+
+    var languageList = doc.GetElementsByTagName("GetLanguageListResult");
+
+    return Content(JsonConvert.SerializeObject(languageList), "application/json");
+}
+```
+
+This logic instantiates a new [`XMLDocument` object](https://msdn.microsoft.com/en-us/library/system.xml.xmldocument(v=vs.110).aspx) and loads in the response from the SOAP service we are calling. We then access a portion of the SOAP response by using the `GetElementsByTagName` method, and then we serialize the object as JSON and return it.
+
+When you go back to the `SoapControllerTest.cs` file we created in the previous step, you'll see that our unit test will now pass.
+
+Because we're using dependency injection for our SOAP controller, we need to register this in the `Startup.cs` file. Open that file, and in the `ConfigureServices` section, add the following logic:
+
+```csharp
+var ns = Environment.GetEnvironmentVariable("SOAP_NAMESPACE") ?? "http://tempuri.org/";
+var soap_endpoint = Environment.GetEnvironmentVariable("SOAP_ENDPOINT") ?? "https://www.gcmrc.gov/WebService.asmx";
+services.AddSingleton<ISoapConnector>(new SoapConnector(XNamespace.Get(ns), new Uri(soap_endpoint)));
+```
+
+Just like with the REST Connector we created in the last part, this will register a new `ISoapConnector instance for our Web API application when it's started so that it can be used in the SOAP controller.
+
+Now when you point your browser to `http://127.0.0.1:5000/api/soap` you'll see some content returned from the SOAP service formatted as JSON.
+
 
 ## Review
 
 In this part, we discussed:
 
-* Setting up a new controller.
-* Adding a new package via the `dotnet` CLI.
-* Asynchronous programming in C#.
-* Writing loosely coupled code and dependency injection in Web API.
-* Writing tests using a mock object.
-* Registering a new service in Web API framework.
+* Setting up a new SOAP Connector class that uses the [`SoapHttpClient` package](https://www.nuget.org/packages/SoapHttpClient/).
+* Stubbing out a new SOAP controller, and writing unit tests.
+* Modifying the SOAP controller to make calls to an existing SOAP service.
+* Modifying the `Startup.cs` file to register dependency injection.
 
-The [next part](../../tree/part-4), we'll build on these lessons and create a new controller and tests for a legacy SOPA-based service.
+
+The [next part](../../tree/part-5), we'll build on these lessons and create a new controller that access a SQL Server database. 

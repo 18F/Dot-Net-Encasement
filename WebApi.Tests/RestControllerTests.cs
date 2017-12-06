@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace WebApi.Tests
 {
     // A test connector to use for our tests.
-    public class testConnector : IRestConnector
+    public class testRestConnector : IRestConnector
     {
         public async Task<string> CallServiceAsync(string path)
         {
@@ -21,7 +21,7 @@ namespace WebApi.Tests
         public void GetMethodTest()
         {
             // Assemble
-            IRestConnector testConnector = new testConnector();
+            IRestConnector testConnector = new testRestConnector();
             RestController testController = new RestController(testConnector);
             var expected = typeof(ContentResult);
 
@@ -36,7 +36,7 @@ namespace WebApi.Tests
         public void GetMetodWithIdTest()
         {
             // Assemble
-            IRestConnector testConnector = new testConnector();
+            IRestConnector testConnector = new testRestConnector();
             RestController testController = new RestController(testConnector);
             var expected = typeof(ContentResult);
 
