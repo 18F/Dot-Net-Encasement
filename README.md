@@ -20,7 +20,7 @@ This tutorial is structured around git branches. Each step in the tutorial is co
 * Part 1: [Setting up a new Web API application](https://github.com/mheadd/WebApiTutorial/tree/part-1)
 * Part 2: [Creating Web API Controller Tests](https://github.com/mheadd/WebApiTutorial/tree/part-2)
 * Part 3: [Creating a REST Controller](https://github.com/mheadd/WebApiTutorial/tree/part-3)
-* Part 4: Creating a SOAP Controller
+* Part 4: [Creating a SOAP Controller](https://github.com/mheadd/WebApiTutorial/tree/part-4)
 * Part 5: Creating a SQL Controller (Entity Framework / SQL Server)
 * Part 6: Creating a SQL Controller (PostreSQL)
 * Part 7: Configuration Management in Web API.
