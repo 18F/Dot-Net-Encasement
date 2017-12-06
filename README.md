@@ -2,12 +2,12 @@
 
 This part of the tutorial will cover development of a controller to access an existing legacy SOAP service.
 
-## Part 3: Creating a SOAP Connector Class
+## Part 4: Creating a SOAP Connector Class
 
 To access a SOAP service, we'll want to use a new package from the [Nuget](https://www.nuget.org/packages/SoapHttpClient/) repository. In the integrated terminal, install the `SoapHttpClient` package (when prompted, restore dependencies after installing):
 
 ```bash
-$cd WebApi
+$ cd WebApi
 $ dotnet add package SoapHttpClient
 ```
 
@@ -65,11 +65,11 @@ namespace WebApiReferenceApp.Connectors
 }
 ```
 
-As we did with the REST connector in the last part, we start by defining an interface with a single method definition. We then implement the interface in the `SoapConnector` class. We also add some private class members for the endpoint and namespace for the SOAP service.
+As we did with the REST connector [in the last part](../../tree/part-3#testing-and-dependency-injection), we start by defining an interface with a single method definition. We then implement the interface in the `SoapConnector` class. We also add some private class members for the endpoint and namespace for the SOAP service.
 
 ## Creating a SOAP Controller
 
-Create a new controller in the `Controllers` directory for our SOAP controller:
+Create a new file in the `Controllers` directory for our SOAP controller:
 
 ```bash
 $ touch Controllers/SoapController.cs
@@ -114,9 +114,11 @@ namespace WebApiTutorial.Controllers
 }
 ```
 
+Note that the public method exposed on this controller is not yet implemented. before doing so, let's write a test for this method. Initially, this test when run will fail. Implementing the public method on the `SoapController` class should cause our test to pass.
+
 ## Writing Tests
 
-Note that the public method exposed on this controller is not yet implemented. Before going further, let's create a test for this controller. Change over to the test directory and create a new unit test file:
+Change over to the test directory and create a new unit test file for our `SoapController` class:
 
 ```bash
 $ cd ../WebApi.Tests/
@@ -188,7 +190,7 @@ In the `SoapControllerTests.cs` file, edit the class to add a new private member
 private string _methodName = "GetLanguageList";
 ```
 
-Now, edit the public method `ContentResult` to call the SOAP service and format the response:
+Now, edit the public method of the `SoapController` class to call the SOAP service and format the response:
 
 ```csharp
 public ContentResult Get(string methodName)
@@ -214,7 +216,7 @@ var soap_endpoint = Environment.GetEnvironmentVariable("SOAP_ENDPOINT") ?? "http
 services.AddSingleton<ISoapConnector>(new SoapConnector(XNamespace.Get(ns), new Uri(soap_endpoint)));
 ```
 
-Just like with the REST Connector we created in the last part, this will register a new `ISoapConnector instance for our Web API application when it's started so that it can be used in the SOAP controller.
+Just like with the REST Connector we created in the last part, this will register a new `SoapConnector` instance for our Web API application when it's started so that it can be used in the SOAP controller.
 
 Now when you point your browser to `http://127.0.0.1:5000/api/soap` you'll see some content returned from the SOAP service formatted as JSON.
 
