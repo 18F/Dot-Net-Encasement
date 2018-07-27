@@ -15,7 +15,7 @@ $ cd WebApi
 $ dotnet new webapi
 ```
 
-This will bootstrap a simple Web API application that you can work with. Note - there are other tools that you can use to bootstrap a new Web API application. In particular, `Yeoman` is  tool worth [checking out](https://docs.microsoft.com/en-us/aspnet/core/client-side/yeoman).
+This will bootstrap a simple Web API application that you can work with. Note - there are other tools that you can use to bootstrap a new Web API application. In particular, `Yeoman` is  tool worth [checking out](http://jakeydocs.readthedocs.io/en/latest/client-side/yeoman.html).
 
 You can continue to use your open terminal, or you can use the integrated terminal view in Visual Studio Code (open using the **control** + **\`** keys, or from the top menu via `View` > `Integrated Terminal`).
 
