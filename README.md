@@ -59,5 +59,5 @@ These are some resources that can supplement the steps demonstrated in this tuto
 * Use Visual Studio Code to [create and run Transact-SQL scripts for SQL Server](https://docs.microsoft.com/en-us/sql/linux/sql-server-linux-develop-use-vscode)
 
 ### Docker
-* .NET Core [Docker images](Official images for .NET Core for Linux and Windows Server 2016 Nano Server)
+* .NET Core [Docker images](https://hub.docker.com/_/microsoft-dotnet-core): Official imafges for .NET Core and ASP.NET Core.
 * Overview of how to run the [SQL Server 2017 container image](https://docs.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker) in Docker
