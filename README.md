@@ -30,15 +30,17 @@ Open a web browser and point to `https://localhost:5000/api/values` and you shou
 Note - you may have to change the local port on which this application is served. By default, the [Kestral](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?view=aspnetcore-2.2) web server that ships with .NET Core serves WebAPI apps on `https://localhost:5000`. If you have trouble accessing this port, you can change it by updating the values in the `Properties/launchSettings.json` file, or you can update the `Program.cs` file to change 
 
 ```csharp
-.UseStartup<Startup>()
+.UseStartup<Startup>();
 ```
 
 to
 
 ```csharp
 .UseStartup<Startup>()
-.UseUrls("http://*:80")
+.UseUrls("http://*:3000");
 ```
+
+This will serve your app on `http://localhost:3000`.
 
 ## Modifying your new Web API application
 
