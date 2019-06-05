@@ -5,13 +5,13 @@
 Open a terminal, and Navigate to a new directory. Create a set of parallel directories to hold your new Web API application and tests:
 
 ```bash
-$ mkdir WebApi WebApi.Tests
+$ mkdir -p WebApiTest/{WebApi,WebApi.Tests}
 ```
 
-Navigate to the `WebApi` directory and create a new Web API application using the [.NET Core command line interface](https://docs.microsoft.com/en-us/dotnet/core/tools/?tabs=netcore2x) (CLI):
+Navigate to the `WebApi` subdirectory and create a new Web API application using the [.NET Core command line interface](https://docs.microsoft.com/en-us/dotnet/core/tools/?tabs=netcore2x) (CLI):
 
 ```bash
-$ cd WebApi
+$ cd WebApiTest/WebApi
 $ dotnet new webapi
 ```
 
@@ -25,7 +25,20 @@ Make sure you can run your new Web API application:
 $ dotnet run
 ```
 
-Open a web browser and point to `http://localhost:5000/api/values` and you should see some JSON.
+Open a web browser and point to `https://localhost:5000/api/values` and you should see some JSON.
+
+Note - you may have to change the local port on which this application is served. By default, the [Kestral](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?view=aspnetcore-2.2) web server that ships with .NET Core serves WebAPI apps on `https://localhost:5000`. If you have trouble accessing this port, you can change it by updating the values in the `Properties/launchSettings.json` file, or you can update the `Program.cs` file to change 
+
+```csharp
+.UseStartup<Startup>()
+```
+
+to
+
+```csharp
+.UseStartup<Startup>()
+.UseUrls("http://*:80")
+```
 
 ## Modifying your new Web API application
 
