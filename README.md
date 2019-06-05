@@ -29,7 +29,7 @@ This tutorial is structured around git branches. Each step in the tutorial is co
 
 Download and install:
 
-* [.NET Core SDK](https://www.microsoft.com/net/learn/get-started/macos)
+* [.NET Core SDK](https://dotnet.microsoft.com/download)
 * [Visual Studio Code](https://code.visualstudio.com/)
 * Visual Studio Code [C# extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp)
 
