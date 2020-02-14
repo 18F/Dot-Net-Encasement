@@ -2,13 +2,13 @@
 
 ## Introduction
 
-This repo contains sample code and instructions for creating a RESTful API using .NET Core Web API to act as a proxy for various legacy data sources (REST API, SOAP API, PostgreSQL data base, SQL Server database). It is designed for people that have some coding experience and are comfortable building APIs that are interested in learning more [C#](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/) and [.NET Core](https://docs.microsoft.com/en-us/dotnet/core/).
+This repo contains sample code and instructions for creating a RESTful API using .NET Core Web API to act as a proxy for various legacy data sources (REST API, SOAP API, PostgreSQL data base, SQL Server database). It is designed for people that have some coding experience and are comfortable building APIs that are interested in learning more about [C#](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/) and [.NET Core](https://docs.microsoft.com/en-us/dotnet/core/).
 
 Each step in this tutorial explains how the different pieces of the Web API application are constructed, and provides an introduction to some foundational concepts for working with **C#**, **.NET Core** and **Web API**.
 
 ## Motivation
 
-In 18F's work on legacy modernization projects, .NET and the Microsoft software stack are technologies we encounter often. These components are typically already used in the states and federal agencies we work with, which can make them a convenient choice for supporting legacy modernization efforts. But beyond the tactical advantage of using a platform that our partners are already invested in and familiar with, .NET Core and related components have a number of features that can make them a solid choice for this work. Organizational proclivity for other technologies may not make .NET an obvious choice in some instances where it might be the more optimal fit.
+In 18F's work on legacy modernization projects, .NET and the Microsoft software stack are technologies we encounter often. These components are typically already used in the states and federal agencies we work with, which can make them a convenient choice for supporting legacy modernization efforts. But beyond the tactical advantage of using a platform that our partners are already invested in and familiar with, .NET Core and related components have a number of features that can make them a solid choice for this kind of work. Predisposition for other technologies may not make .NET an obvious choice in some instances where it might actually be the more optimal fit.
 
 [ASP.NET Web API](https://www.asp.net/web-api) is a framework that can be used to create RESTful web services, which are often [central to our efforts to modernize legacy systems](https://18f.gsa.gov/2014/09/08/the-encasement-strategy-on-legacy-systems-and-the/). Building a Web API application is a good way to learn to write C# code, to become familiar with .NET Core, and to get accustomed to working with some associated tools like [Visual Studio Code](https://code.visualstudio.com/). 
 
@@ -31,7 +31,13 @@ Download and install:
 
 * [.NET Core SDK](https://dotnet.microsoft.com/download)
 * [Visual Studio Code](https://code.visualstudio.com/)
-* Visual Studio Code [C# extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp)
+* VS Code [C# extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp)
+
+Some other useful VS Code extensions you'll need:
+
+* VS Code [Docker extension](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker)
+* VS Code [SQL Server extension](https://marketplace.visualstudio.com/items?itemName=ms-mssql.mssql)
+* [Nuget Package Manager](https://marketplace.visualstudio.com/items?itemName=jmrog.vscode-nuget-package-manager)
 
 You're ready to get started. Check out [Part 1: Creating your first Web API application](../../tree/part-1).
 
@@ -40,9 +46,9 @@ You're ready to get started. Check out [Part 1: Creating your first Web API appl
 These are some resources that can supplement the steps demonstrated in this tutorial and provide deeper insights into .NET Core and Web API.
 
 ### General
-* [General overview](https://docs.microsoft.com/en-us/aspnet/core/tutorials/web-api-vsc) of how to create a Web API with ASP.NET Core MVC on MacOS.
+* [General overview](https://docs.microsoft.com/en-us/visualstudio/mac/asp-net-core?view=vsmac-2019) of how to create a Web API with ASP.NET Core MVC on MacOS.
 * [Asynchronous programming](https://docs.microsoft.com/en-us/dotnet/csharp/async) in C#.
-* [Video archive](https://channel9.msdn.com/Events/dotnetconf/2017) of .NET Conf 2017
+* [Video archive](https://dotnet.microsoft.com/learn/videos) 
 
 ### Testing
 * [Testing controller logic](https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/testing) in ASP.NET Core
