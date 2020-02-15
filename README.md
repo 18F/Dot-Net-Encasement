@@ -15,9 +15,9 @@ $ cd WebApiTest/WebApi
 $ dotnet new webapi
 ```
 
-This will bootstrap a simple Web API application that you can work with. Note - there are other tools that you can use to bootstrap a new Web API application. In particular, `Yeoman` is  tool worth [checking out](http://jakeydocs.readthedocs.io/en/latest/client-side/yeoman.html).
+This will bootstrap a simple Web API application that you can work with. Note - there are other tools that you can use to bootstrap a new Web API application. In particular, `Yeoman` is a tool worth [checking out](http://jakeydocs.readthedocs.io/en/latest/client-side/yeoman.html).
 
-You can continue to use your open terminal, or you can use the integrated terminal view in Visual Studio Code (open using the **control** + **\`** keys, or from the top menu via `View` > `Integrated Terminal`).
+You can continue to use your open terminal, or you can use the integrated terminal view in Visual Studio Code (open using the `control` + `` ` `` keys, or from the top menu via `View` > `Integrated Terminal`).
 
 Make sure you can run your new Web API application:
 
@@ -25,15 +25,15 @@ Make sure you can run your new Web API application:
 $ dotnet run
 ```
 
-Open a web browser and point to `https://localhost:5000/api/values` and you should see some JSON.
+Open a web browser and point to `https://localhost:5001/WeatherForecast` and you should see some JSON.
 
-Note - you may have to change the local port on which this application is served. By default, the [Kestral](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?view=aspnetcore-2.2) web server that ships with .NET Core serves WebAPI apps on `https://localhost:5000`. If you have trouble accessing this port, you can change it by updating the values in the `Properties/launchSettings.json` file, or you can update the `Program.cs` file to change 
+Note - you may have to change the local port on which this application is served. By default, the [Kestral](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?view=aspnetcore-2.2) web server that ships with .NET Core serves WebAPI apps on ports `5000` and `5001`. If you have trouble accessing these ports for some reason, you can change it by updating the values in the `Properties/launchSettings.json` file, or you can update the `Program.cs` file to change this line:
 
 ```csharp
 .UseStartup<Startup>();
 ```
 
-to
+to this:
 
 ```csharp
 .UseStartup<Startup>()
@@ -44,104 +44,71 @@ This will serve your app on `http://localhost:3000`.
 
 ## Modifying your new Web API application
 
-In the `Controllers` directory, open the file `ValuesController.cs`. This is an example file created by the .NET Core CLI tool that renders the JSON you just saw in your browser. Notice the route attribute on the `ValuesController` class:
+In the `Controllers` directory, open the file `WeatherForecastController.cs`. This is an example file created by the .NET Core CLI tool that renders the JSON you just saw in your browser. Notice the route attribute on the `WeatherForecastController` class:
+
+```csharp
+[Route("[controller]")]
+```
+
+This attribute routes requests to your Web API application using the name of the controller (without the `Controller` part). So requests to `http://{host}/WeatherForecast` will be handled by this controller. Attribute routing isn't the only way to route requests in a Web API application, but this approach does have [some advantages](https://docs.microsoft.com/en-us/aspnet/web-api/overview/web-api-routing-and-actions/attribute-routing-in-web-api-2#why-attribute-routing) when building RESTful APIs.
+
+Try changing the route attribute to:
 
 ```csharp
 [Route("api/[controller]")]
 ```
 
-This attribute routes requests to your Web API application using the path `/api` + the name of the controller (without the "Controller" part). So requests to `http://{host}/api/values` will be handled by this controller. Attribute routing isn't the only way to route requests in a Web API application, but this approach does have [some advantages](https://docs.microsoft.com/en-us/aspnet/web-api/overview/web-api-routing-and-actions/attribute-routing-in-web-api-2#why-attribute-routing) when building RESTful APIs.
-
-You can further define how specific routes are handled by using attributes on specific methods. For example, notice the attribute used on one of the Get methods:
+After saving and restarting your application, this will change the path that routes to this controller to `http://localhost:3000/api/WeatherForecast`. You can further define how specific routes are handled by using attributes on specific methods. For example, Let's create a additional `Get()` method for this class that accepts a parameter:
 
 ```csharp
-[HttpGet("{id}")]
-public string Get(int id)
+[HttpGet("length/{length}")]
+public IEnumerable<WeatherForecast> Get(int length)
 {
-    return "value";
+    int range = length >  Summaries.Length ? Summaries.Length : length;
+    var rng = new Random();
+    return Enumerable.Range(1, range).Select(index => new WeatherForecast
+    {
+        Date = DateTime.Now.AddDays(index),
+        TemperatureC = rng.Next(-20, 55),
+        Summary = Summaries[rng.Next(Summaries.Length)]
+    })
+    .ToArray();
 }
 ```
 
-This attribute matches GET requests for routes with an `id` value to this specific method. Try accessing `http://localhost:5000/api/values/5` in your browser. You'll see the string "value" returned. 
+Web API will [bind parameters to variables](https://docs.microsoft.com/en-us/aspnet/web-api/overview/formats-and-model-binding/parameter-binding-in-aspnet-web-api) so that we can access parameter values inside methods. The changes we have made will match GET requests for routes with a `length` value to this specific method. We can access the `length` parameter as an integer inside our method and use it to change the result that is returned.
 
-We can change the path that will match this method by altering the `HttpGet` attribute. Make the following change, save it, and restart your application:
-
-```csharp
-[HttpGet("value/{id}")]
-public string Get(int id)
-{
-    return "value";
-}
-```
-
-Now this method is invoked when you access `http://localhost:5000/api/values/value/5` in your browser. In addition, Web API will [bind parameters to variables](https://docs.microsoft.com/en-us/aspnet/web-api/overview/formats-and-model-binding/parameter-binding-in-aspnet-web-api) so that we can access parameter values inside methods. Instead of just returning the string "value" from our method, let's return the value in the `id` variable. Make the following change, save it,  and restart your application:
-
-```csharp
-[HttpGet("value/{id}")]
-public Object Get(int id)
-{
-    return new { value = id }; 
-}
-```
-
-Now, access `http://localhost:5000/api/values/value/5` in your web browser. Since we changed the return type of the method from `string` to `Object` we can use object literal notation in C# to return a new anonymous type. Web API will automatically convert this return value to JSON when it renders the output. Try looking at the **Content-type** header in the response when you access the same route:
-
-```bash
-$ curl -v http://localhost:5000/api/values/value/5
-*   Trying ::1...
-* TCP_NODELAY set
-* Connected to localhost (::1) port 5000 (#0)
-> GET /api/values/value/5 HTTP/1.1
-> Host: localhost:5000
-> User-Agent: curl/7.54.0
-> Accept: */*
-> 
-< HTTP/1.1 200 OK
-< Date: Fri, 24 Nov 2017 14:28:46 GMT
-< Content-Type: application/json; charset=utf-8
-< Server: Kestrel
-< Transfer-Encoding: chunked
-< 
-* Connection #0 to host localhost left intact
-{"value":5}
-```
+Save and restart your application. Try accessing `http://localhost:3000/api/WeatherForecast/length/4` in your browser. You'll see only 4 weather forecasts returned.
 
 ## Setting up watcher
 
-You may have noticed that we stopped and restarted our application several times as we made these changes. As you work on your Web API application, this may become more of an inconvenience. To automatically restart your application when changes are made, we'll need to [set up `dotnet watch`](https://github.com/aspnet/DotNetTools/tree/dev/src/Microsoft.DotNet.Watcher.Tools#how-to-install).
+You may have noticed that we stopped and restarted our application several times as we made our changes. As you work on your Web API application, this may become more of an inconvenience. To automatically restart your application when changes are made, we'll need to [set up `dotnet watch`](https://docs.microsoft.com/en-us/aspnet/core/tutorials/dotnet-watch?view=aspnetcore-3.1).
 
-Open the file `WebApi.csproj` and add a new `<DotNetCliToolReference/>` item for the watcher utility:
+In your terminal, add a new package to install `watch`:
 
-```xml
-<ItemGroup>
-    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
-    <DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="2.0.0" />
-</ItemGroup>
+```bash
+$ dotnet add package Microsoft.DotNet.Watcher.Tools
 ```
 
-In your integrated terminal type `dotnet restore`. You can now invoke the watcher tool when running your Web API app like this:
+You can now invoke the watcher tool when running your Web API app like this:
 
 ```bash
 $ dotnet watch run
 ```
 
-Now, when we change our method, the watcher will automatically pick up the change to the `ValuesController.cs` file and restart your application. To demonstrate, make the following changes to the `ValuesController.cs` file and save your changes.
+Now, when we change our method, the watcher will automatically pick up the change to the `WeatherForecastController.cs` file and restart your application. To demonstrate, make the following changes to the `ValuesController.cs` file and save your changes.
 
 ```csharp
-[HttpGet("value/{id}")]
-public Object Get(int id)
-{
-    return new { value1 = id , value2 = (id*2)}; 
-}
+int range = length >  Summaries.Length ? Summaries.Length : length-1;
 ```
 
-With watcher running, you can see these changes in your browser without manually restarting your Web API application.
+With watcher running, you can see these changes in your browser without manually restarting your Web API application. Now when you access `http://localhost:3000/api/WeatherForecast/length/4` only 3 weather forecasts are returned.
 
 ## Adding CORS support
 
-Now that we understand how requests are routed and how parameters are bound and values returned, let's add some additional functionality that will be needed by our Web API application. 
+Now that we understand how requests are routed, how parameters are bound, and how value are returned, let's add some additional functionality that will be needed by our Web API application.
 
-You may have noticed that when we bootstrapped our Web API application, a directory called `wwwroot` was created. This is typically where [static resources are stored](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/static-files). We're not going to be using static files that access the RESTful API we're creating - instead, we're going to create an API that serves requests from other hosts. To do this, we'll need to enable [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS). To do this, we need to modify the file `Startup.cs`.
+Some Web API applications contain a directory called `wwwroot`. This is typically where [static resources are stored](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/static-files). We're not going to be using static files that access the RESTful API we're creating - instead, we're going to create an API that can serve requests from other hosts. To do this, we'll need to enable [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
 
 Open the `Startup.cs` file and add the following to the `ConfigureServices` method before the call to `services.AddMvc();`:
 
@@ -160,41 +127,39 @@ This defines a CORS policy that your Web API app will use when handling requests
 
 ```csharp
  app.UseCors("CorsPolicy");
- ```
+```
 
- Now, when your app responds to requests from external hosts, it should send the appropriate CORS headers:
+Now, when your app responds to requests from external hosts, it should send the appropriate CORS headers:
 
 ```bash
-$ curl -v -H 'Origin: http://some-fake-host.com' http://localhost:5000/api/values/value/5
+~$ curl -v -H 'Origin: http://some-fake-host.com' http://localhost:3000/api/WeatherForecast/length/4
 *   Trying ::1...
 * TCP_NODELAY set
-* Connected to localhost (::1) port 5000 (#0)
-> GET /api/values/value/5 HTTP/1.1
-> Host: localhost:5000
+* Connected to localhost (::1) port 3000 (#0)
+> GET /api/WeatherForecast/length/4 HTTP/1.1
+> Host: localhost:3000
 > User-Agent: curl/7.54.0
 > Accept: */*
 > Origin: http://some-fake-host.com
 > 
 < HTTP/1.1 200 OK
-< Date: Fri, 24 Nov 2017 15:17:08 GMT
+< Date: Sat, 15 Feb 2020 21:10:31 GMT
 < Content-Type: application/json; charset=utf-8
 < Server: Kestrel
 < Transfer-Encoding: chunked
-< Vary: Origin
-< Access-Control-Allow-Credentials: true
-< Access-Control-Allow-Origin: http://some-fake-host.com
+< Access-Control-Allow-Origin: *
 < 
 * Connection #0 to host localhost left intact
-{"value1":5,"value2":10}
+[{"date":"2020-02-16T16:10:31.921169-05:00","temperatureC":52,"temperatureF":125,"summary":"Freezing"},{"date":"2020-02-17T16:10:31.921198-05:00","temperatureC":-19,"temperatureF":-2,"summary":"Bracing"},{"date":"2020-02-18T16:10:31.921208-05:00","temperatureC":39,"temperatureF":102,"summary":"Scorching"}]
 ```
 
 ## Review
 
 In this step, we discussed:
 
-* Attribute routing
-* Parameter binding
-* Adding `dotnet watch` to a project
-* Modifying the `Startup.cs` file to add CORS support.
+- Attribute routing
+- Parameter binding
+- Adding `dotnet watch` to a project
+- Modifying the `Startup.cs` file to add CORS support.
 
 In the [next part](../../tree/part-2), we'll cover how to set up tests for Web API controllers.
