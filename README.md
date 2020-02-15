@@ -129,7 +129,7 @@ This defines a CORS policy that your Web API app will use when handling requests
  app.UseCors("CorsPolicy");
 ```
 
-Now, when your app responds to requests from external hosts, it should send the appropriate CORS headers:
+Save your changes. Now, when your app responds to requests from external hosts, it should send the appropriate CORS headers:
 
 ```bash
 ~$ curl -v -H 'Origin: http://some-fake-host.com' http://localhost:3000/api/WeatherForecast/length/4
