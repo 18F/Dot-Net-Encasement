@@ -110,7 +110,7 @@ Now that we understand how requests are routed, how parameters are bound, and ho
 
 Some Web API applications contain a directory called `wwwroot`. This is typically where [static resources are stored](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/static-files). We're not going to be using static files that access the RESTful API we're creating - instead, we're going to create an API that can serve requests from other hosts. To do this, we'll need to enable [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
 
-Open the `Startup.cs` file and add the following to the `ConfigureServices` method before the call to `services.AddMvc();`:
+Open the `Startup.cs` file and add the following to the `ConfigureServices` method before the call to `services.AddControllers();`:
 
 ```csharp
 services.AddCors(options =>
@@ -123,7 +123,7 @@ services.AddCors(options =>
     });
 ```
 
-This defines a CORS policy that your Web API app will use when handling requests. Next, in the `Configure` method, add the following before the call to `app.UseMvc()`:
+This defines a CORS policy that your Web API app will use when handling requests. Next, in the `Configure` method, add the following the `if()` block containing the call to `app.UseDeveloperExceptionPage();`:
 
 ```csharp
  app.UseCors("CorsPolicy");
