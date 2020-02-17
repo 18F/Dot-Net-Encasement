@@ -303,7 +303,7 @@ services.AddSingleton<IRestConnector>(new RestConnector(new Uri(rest_endpoint)))
 
 This will create a new variable for the endpoint to use in the REST controller - getting the value from an environmental variable called `REST_URI` (if it exists), or the string `https://catalog.data.gov`. We then use this variable to a create new RestConnector instance and register it with the WebAPI framework via the `services.AddSingleton` method.
 
-So now, when you point your web browser at `http://localhost:5000/api/rest/search` you'll see the expected JSON response.
+So now, when you point your web browser at `http://localhost:3000/api/rest/search` you'll see the expected JSON response.
 
 ## Review
 
@@ -316,4 +316,4 @@ In this part, we discussed:
 * Writing tests using a mock object.
 * Registering a new service in Web API framework.
 
-The [next part](../../tree/part-4), we'll build on these lessons and create a new controller and tests for a legacy SOPA-based service.
+The [next part](../../tree/part-4), we'll build on these lessons and create a new controller and tests for a legacy SOAP-based service.
