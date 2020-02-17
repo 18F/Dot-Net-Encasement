@@ -26,14 +26,26 @@ namespace WebApiTutorial.Controllers
             // Create a new XML document to hold the response from the SOAP service.
             XmlDocument doc = new XmlDocument();
 
-            // Load the response from the SOAP service.
-            doc.LoadXml(GetSoapResponse(_methodName));
+            try
+            {
+                // Load the response from the SOAP service.
+                doc.LoadXml(GetSoapResponse(_methodName));
 
-            //
-            var languageList = doc.GetElementsByTagName("GetLanguageListResult");
+                //
+                var languageList = doc.GetElementsByTagName("GetLanguageListResult");
 
-            // Convert the XML document to JSON format.
-            return Content(JsonConvert.SerializeObject(languageList), "application/json");
+                // Convert the XML document to JSON format.
+                return Content(JsonConvert.SerializeObject(languageList), "application/json");
+
+            }
+            catch (XmlException ex)
+            {
+                var exception = "<error>" + ex.Message + "</error>";
+                doc.LoadXml(exception);
+                return Content(JsonConvert.SerializeObject(doc), "application/json");
+            }
+
+
         }
 
         /**
