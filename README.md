@@ -10,36 +10,42 @@ In the integrated terminal in Visual Studio Code, navigate to the `WebApi.Tests`
 $ dotnet new xunit
 ```
 
-Change the name of the generated test file to `ValuesControllerTests.cs` to be explicit about the controller that these tests will cover. Add a reference to the project that you are writing controller tests for:
+Change the name of the generated test file to `WeatherForecastControllerTests.cs` to be explicit about the controller that these tests will cover. Add a reference to the project that you are writing controller tests for:
 
 ```bash
 $ dotnet add reference ../WebApi/WebApi.csproj
 ```
 
-In the test file, change the name of the newly created class - a useful convention to use is to name your class based on the controller yu are writing tests for. In this case, we'll use `ValuesControllerTests`. You'll also need to add a `using` statement to reference the assembly containing the controller you want to test. 
+In the test file, change the name of the newly created class - a useful convention to use is to name your class based on the controller you are writing tests for. In this case, we'll use `WeatherForecastControllerTests`. You'll also need to add a `using` statement to reference the assembly containing the controller you want to test. 
+
+```csharp
+using WebApi.Controllers;
+```
 
 Next, add a new method for each controller method you want to test (in this example, we'll only add two tests for the two `Get()` methods we talked about in the last part of this tutorial). Each test method is adorned with a `[Fact]` attribute. 
 
 ```csharp
-using System;
 using Xunit;
+using Microsoft.Extensions.Logging;
 using WebApi.Controllers;
 
 namespace WebApi.Tests
 {
-    public class ValueControllerTests
+    public class WeatherForecastControllerTests
     {
+        private ILogger<WeatherForecastController> _logger;
+        
         [Fact]
         public void GetMethodTest()
         {
             // Assemble
-            ValuesController testController = new ValuesController();
-            var expected = typeof(string[]);
+            WeatherForecastController testController = new WeatherForecastController(_logger);
+            var expected = typeof(WebApi.WeatherForecast[]);
 
             // Act
             var actual = testController.Get();
 
-            // Asset
+            // Assert
             Assert.IsType(expected, actual);
         }
 
@@ -47,12 +53,12 @@ namespace WebApi.Tests
         public void GetMethodWithParamTest()
         {
             // Assemble
-            ValuesController testController = new ValuesController();
+            WeatherForecastController testController = new WeatherForecastController(_logger);
 
             // Act
             var actual = testController.Get(5);
 
-            // Asset
+            // Assert
             Assert.NotNull(actual);
         }
     }
@@ -67,11 +73,9 @@ You can run these tests using the `dotnet` CLI by doing the following:
 $ dotnet test
 ```
 
-You can also run tests from within Visual Studio Code - notice that when you view a unit test file, Visual Studio Code provides additional options for running a single test, and for debugging. Clicking on the `run test` option runs a single test in your unit test file.
+You can also run tests from within Visual Studio Code - notice that when you view a unit test file, Visual Studio Code provides additional options for running all tests, a single test, and for debugging tests. Clicking on the `run test` option above a test method name runs a single test in your unit test file.
 
-![Test / Debug options in Visual Studio Code](screenshots/debugging-tests.png)
-
-Using the `debug test` option will run an individual test in debug mode. You can even set breakpoints, and step through your unit test code to ensure that your test is working as anticipated.
+Using the `debug test` option will run a test in debug mode. You can even set breakpoints, and step through your unit test code to ensure that your test is working as anticipated.
 
 Note, this is just a basic overview of testing using [the `xunit` testing framework](https://xunit.github.io/docs/getting-started-dotnet-core).  Writing comprehensive tests is beyond the scope of this tutorial, but we'll explore more concepts related to testing in the [next part](../../tree/part-3).
 
