@@ -218,7 +218,7 @@ services.AddSingleton<ISoapConnector>(new SoapConnector(XNamespace.Get(ns), new 
 
 Just like with the REST Connector we created in the last part, this will register a new `SoapConnector` instance for our Web API application when it's started so that it can be used in the SOAP controller.
 
-Now when you point your browser to `http://127.0.0.1:5000/api/soap` you'll see some content returned from the SOAP service formatted as JSON.
+Now when you point your browser to `http://127.0.0.1:3000/api/soap` you'll see some content returned from the SOAP service formatted as JSON.
 
 
 ## Review
