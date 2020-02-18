@@ -8,9 +8,11 @@ Each step in this tutorial explains how the different pieces of the Web API appl
 
 ## Motivation
 
-In 18F's work on legacy modernization projects, .NET and the Microsoft software stack are technologies we encounter often. These components are typically already used in the states and federal agencies we work with, which can make them a convenient choice for supporting legacy modernization efforts. But beyond the tactical advantage of using a platform that our partners are already invested in and familiar with, .NET Core and related components have a number of features that can make them a solid choice for this kind of work. Predisposition for other technologies may not make .NET an obvious choice in some instances where it might actually be the more optimal fit.
+In 18F's work on legacy modernization projects, .NET and the Microsoft software stack are technologies we encounter often. These components are typically already used in the states and federal agencies we work with, which can make them a convenient choice for supporting legacy modernization efforts. But beyond the tactical advantage of using a platform that our partners are already invested in and familiar with, .NET Core and related components have a number of features that can make them a solid choice for this kind of work. 
 
-[ASP.NET Web API](https://www.asp.net/web-api) is a framework that can be used to create RESTful web services, which are often [central to our efforts to modernize legacy systems](https://18f.gsa.gov/2014/09/08/the-encasement-strategy-on-legacy-systems-and-the/). Building a Web API application is a good way to learn to write C# code, to become familiar with .NET Core, and to get accustomed to working with some associated tools like [Visual Studio Code](https://code.visualstudio.com/). 
+[ASP.NET Web API](https://www.asp.net/web-api) is a framework that can be used to create RESTful web services, which are often [important to our efforts to modernize legacy systems](https://18f.gsa.gov/2014/09/08/the-encasement-strategy-on-legacy-systems-and-the/). There are a [number of different patterns](https://samnewman.io/books/monolith-to-microservices/) for migrating away from legacy systems that involve intercepting calls into the system and either rerouting them to new components, or modifying responses returned to the requester. [ASP.NET Web APIs](https://dotnet.microsoft.com/apps/aspnet/apis) is a good fit for this use case. 
+
+Beyond this, building a Web API application is a good way to learn to write C# code, to become familiar with .NET Core, and to get accustomed to working with some associated tools like [Visual Studio Code](https://code.visualstudio.com/). 
 
 ## Structure
 
@@ -24,6 +26,8 @@ This tutorial is structured around git branches. Each step in the tutorial is co
 * Part 5: [Creating a SQL Controller](https://github.com/mheadd/WebApiTutorial/tree/part-5) (Entity Framework / SQL Server)
 * Part 6: Creating a SQL Controller (PostreSQL)
 * Part 7: Configuration Management in Web API.
+
+On your local machine, to see the complete code for each section in action, you should be able to `git checkout part-{number}` and run either `dotnet test` or `dotnet run`.
 
 ## Getting Started
 
