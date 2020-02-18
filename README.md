@@ -1,234 +1,266 @@
 # .NET Core / Web API Tutorial
 
-This part of the tutorial will cover development of a controller to access an existing legacy SOAP service.
+This part of the tutorial will cover development of a controller to enable access to an existing SQL Server database.
 
-## Part 4: Creating a SOAP Connector Class
+## Part 5: Creating a SQL Connector Class
 
-To access a SOAP service, we'll want to use a new package from the [Nuget](https://www.nuget.org/packages/SoapHttpClient/) repository. In the integrated terminal, install the `SoapHttpClient` package (when prompted, restore dependencies after installing):
+Before we can create our new controller, we need a SQL Server database to work with. The [Docker image for SQL Server](https://hub.docker.com/_/microsoft-mssql-server) makes this easy to do. The prebuilt `Dockerfile` in the Docker directory will create a new instance of SQL Server that you can use, and populate it with some dummy data.
 
-```bash
-$ cd WebApi
-$ dotnet add package SoapHttpClient
-```
+To use it, in the terminal pane, `cd` to the Docker directory, and edit the password placeholders in both the `Dockerfile` and `setup.sql` file. The password in the `Dockerfile` is for the SA user, which will be used to create the test database for this example, and populate it with data. If you plan on doing anything with this Docker image beyond this tutorial, you should [change the SA password](https://docs.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker?view=sql-server-ver15&pivots=cs1-bash#sapassword). The password in the `setup.sql` file is for a user account that the SQL Controller will use.
 
-In the `Connectors` directory create a new class for a SOAP connector:
+Once you've saved your changes, build the Docker image and then run it (changing the {user-name} placeholder in the example commands below).
 
 ```bash
-$ touch Connectors/SoapConnector.cs
+~$ docker build -t {user-name}/sql-server-test -f Dockerfile .
+~$ docker run -p 1433:1433 {user-name}/sql-server-test
 ```
 
-In the new `SoapConnector.cs` file, add the following:
+If you have the [VS Code Docker extension](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker) installed, you should see a Docker icon on the left panel in VS Code. Clicking this will show your running image.
+
+Now that we have a running instance of SQL Server, we can create our SQL Connector
+
+We're going to use Entity Framework Core to access the SQL Server database. We'll need to install several packages from Nuget for this. If you have the [Nuget Package Manager extension](https://marketplace.visualstudio.com/items?itemName=jmrog.vscode-nuget-package-manager) for VS Code installed, you can find and install these packages that way. Or, you can simply use the `dotnet` CLI to install them as we've done before.
+
+```bash
+~$ dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+~$ dotnet add package Microsoft.EntityFrameworkCore.Tools
+~$ dotnet add package Microsoft.EntityFrameworkCore.Design
+```
+
+We could write our model classes and DB context for accessing the database by hand, particularly since the sample database we'll use is not all that complex. But another option is to use Entity Framework Core tools to "reverse engineer" our database and generate models and a DB context for us.
+
+To do this, we'll need to install Entity Framework CLI tools.
+
+```bash
+dotnet tool install --global dotnet-ef --version 3.0.0
+```
+
+Now we're ready to build our models and DB context files. In the terminal, run the following command:
+
+```bash
+~$ dotnet ef dbcontext scaffold 'Server=localhost;Database=TestDB;User Id={id};Password={your-password}' Microsoft.EntityFrameworkCore.SqlServer -o Models -c PlacesContext -d
+```
+
+Note - you'll need to replace the user id and password in the example above with the credentials you put in the `setup.sql` file previously. This command will connect to the database and generate a model for the table we created in a directory called `Models` and a DB context file for connecting to the database. Based on the name of the database table in our `setup.sql` file, the model will be named `Places.cs` and the DB context file will be named `PlacesContext.cs`
+
+Once this is done, we'll need to make a couple of changes to the `PlacesContext.cs` file. Before the class definition in this file, we want to add a new Interface to allow us to use dependency injection as we did in previous sections.
 
 ```csharp
-using System;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using SoapHttpClient;
-using SoapHttpClient.Extensions;
-using SoapHttpClient.Enums;
-
-namespace WebApiReferenceApp.Connectors
+public interface IPlacesContext
 {
-    public interface ISoapConnector
-    {
-        Task<string> CallServiceAsync(string method);
-    }
-    public class SoapConnector: ISoapConnector
-    {
-        private XNamespace _ns;
-        private Uri _endpoint;
-
-        public SoapConnector(XNamespace ns, Uri endpoint)
-        {
-            _ns = ns;
-            _endpoint = endpoint;
-        }
-
-        public async Task<string> CallServiceAsync(string method)
-        {
-            // Construct the SOAP body
-            var body = new XElement(_ns.GetName(method));
-
-            // Make the call to the SOAP service.
-            using (var soapClient = new SoapClient())
-            {
-                var response =
-                  await soapClient.PostAsync(
-                          endpoint: _endpoint,
-                          soapVersion: SoapVersion.Soap11,
-                          body: body);
-
-                return await response.Content.ReadAsStringAsync();
-            }
-        }
-    }
+    DbSet<Places> Places { get; set; }
 }
 ```
 
-As we did with the REST connector [in the last part](../../tree/part-3#testing-and-dependency-injection), we start by defining an interface with a single method definition. We then implement the interface in the `SoapConnector` class. We also add some private class members for the endpoint and namespace for the SOAP service.
-
-## Creating a SOAP Controller
-
-Create a new file in the `Controllers` directory for our SOAP controller:
-
-```bash
-$ touch Controllers/SoapController.cs
-```
-
-In the new `SoapController.cs` file, add the following content:
+Now, change the class definition for `PlacesContext` so that it derives from both `DBContext` and our new `IPlacesContext` Interface.
 
 ```csharp
-using System.Xml;
+public partial class PlacesContext : DbContext, IPlacesContext
+```
+
+In the `OnModelCreating` method of the `PlacesContext` class, change the following line:
+
+```csharp
+entity.HasNoKey();
+```
+
+To this:
+
+```csharp
+entity.HasKey(e => e.Id).HasName("PK_Id");
+```
+This change will come into play when we create our unit tests. 
+
+We want our DB context to get the connection string from the `appsettings.json`, so let's add some new logic in the class constructor to do this. 
+
+```csharp
+public PlacesContext()
+{
+    IConfigurationRoot configuration = new ConfigurationBuilder()
+        .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+        .AddJsonFile("appsettings.json")
+        .Build();
+    _connectionString = configuration.GetConnectionString("PlacesDatabase");
+}
+```
+You'll also need to add using statement at the top of the file for `Microsoft.Extensions.Configuration`.
+
+Finally, let's remove the connection string that is hard coded into the `PlacesContext` class. Delete the `#warning` comment and move the connection string to the `appsettings.json` file like so:
+
+```json
+"ConnectionStrings": {
+    "PlacesDatabase": "Server=localhost;Database=TestDB;User Id={Id};Password={your-password}"
+}
+```
+
+Save these changes to the `PlacesContext.cs` file.
+
+## Creating a SQL Controller
+
+Following the pattern we've used previously, create a new file in the `Controllers` directory called `PlacesController.cs`
+
+```csharp
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using WebApiTutorial.Connectors;
+using SqlApiTest.Models;
+using System.Linq;
 
-namespace WebApiTutorial.Controllers
+namespace SqlApiTest.Controllers
 {
+    [ApiController]
     [Route("api/[controller]")]
-    public class SoapController : Controller
+    public class PlacesController : ControllerBase
     {
-        private ISoapConnector _connector;
+        private IPlacesContext _context; 
 
-        public SoapController(ISoapConnector connector)
-        {
-            _connector = connector;
+        public PlacesController(IPlacesContext context) {
+            _context = context;
         }
-
-        // GET api/soap
+        
         [HttpGet]
-        public string Get()
+        public ContentResult Get()
         {
-            return "Not implemented";
+            using PlacesContext context = new PlacesContext();
+            var addresses = _context.Places;
+            return Content(FormatJson(addresses), "application/json");
         }
 
-        /**
-         * Private method to invoke SoapConnector and make service call.       
-        */
-        private string GetSoapResponse(string methodName)
+        [HttpGet("search")]
+        public ContentResult Get(string state)
         {
-            var response = _connector.CallServiceAsync(methodName);
-            return response.Result;
+            using PlacesContext context = new PlacesContext();
+            var addresses = _context.Places
+            .Where(a => a.State == state);
+            return Content(FormatJson(addresses), "application/json");
+        }
+
+        private string FormatJson(IQueryable<Places> addresses) {
+            return JsonConvert.SerializeObject(addresses);
         }
     }
 }
+
 ```
 
-Note that the public method exposed on this controller is not yet implemented. before doing so, let's write a test for this method. Initially, this test when run will fail. Implementing the public method on the `SoapController` class should cause our test to pass.
+The second method on this class uses the [Entity Framework LINQ-to-Entities syntax](https://www.entityframeworktutorial.net/Querying-with-EDM.aspx) for querying the `places` table in our database for places by state name.
+
+Note - because we're using dependency injection for our controller, we'll be able to easily write some unit tests in the next step. However, just like before, we need to make a small change to the `Startup.cs` file to let the framework know we're using dependency injection. Open the `Startup.cs`file, and in the `ConfigureServices` section, add the following logic:
+
+```csharp
+services.AddSingleton<IPlacesContext>(new PlacesContext());
+```
+
+Save your work, and use `dotnet run` to start your app. Now, with your test database running, you should see JSON returned at `http://127.0.0.1:3000/api/places`. You can also search for places in a specific state by using `http://127.0.0.1:3000/api/places/search?state=NY` replacing `NY` with the two character abbreviation for a US state.
 
 ## Writing Tests
 
-Change over to the test directory and create a new unit test file for our `SoapController` class:
+Switch over to the `WebApi.Tests` directory and create a new file called `PlacesTests.cs`.
+
+Instead of writing tests against our SQL Server instance, we're going to use the [Entity Framework in memory database](https://docs.microsoft.com/en-us/ef/core/providers/in-memory/?tabs=dotnet-core-cli) for our unit tests. To do this, we'll need to add a new package.
 
 ```bash
-$ cd ../WebApi.Tests/
-$ touch SoapControllerTests.cs
+~$ dotnet add package Microsoft.EntityFrameworkCore.InMemory
 ```
 
-In the new `SoapControllerTests.cs`, add the following content:
+In the new `PlacesTests.cs` file, put the following content:
 
 ```csharp
-using System.Threading.Tasks;
+using System;
 using Xunit;
 using WebApiTutorial.Controllers;
-using WebApiTutorial.Connectors;
-using Microsoft.AspNetCore.Mvc;
+using WebApiTutorial.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace WebApi.Tests
 {
-    public class testSoapConnector : ISoapConnector
+    public class PlacesControllerTests
     {
-         private string fakeResponse = @"
-            <soap:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
-                <soap:Body>
-                    <FakeResponse xmlns=""http://somefakeurl.org/"">
-                    <FakeResult>
-                        <string>string</string>
-                    </FakeResult>
-                    </FakeResponse>
-                </soap:Body>
-            </soap:Envelope>";
+        private readonly int _counter = 10;
 
-        public async Task<string> CallServiceAsync(string method)
-        {            
-            return await Task.FromResult(fakeResponse);
-        }
-    }
-
-    public class SoapControllerTests
-    {
-        [Fact]
-        public void GetMethodTest()
+        private async Task<PlacesContext> GetDatabaseContext()
         {
-            // Assemble
-            ISoapConnector testConnector = new testSoapConnector();
-            SoapController testController = new SoapController(testConnector);
-            var expected = typeof(ContentResult);
+            var options = new DbContextOptionsBuilder<PlacesContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+            var testContext = new PlacesContext(options);
+            testContext.Database.EnsureCreated();
+            if (await testContext.Places.CountAsync() <= 0)
+            {
+                for (int i = 1; i <= _counter; i++)
+                {
+                    testContext.Places.Add(new Places()
+                    {
+                        Id = i,
+                        LatD = 41,
+                        LatM = 5,
+                        LatS = 59,
+                        Ns = "N",
+                        LonD = 80,
+                        LonM = 39,
+                        LonS = 0,
+                        State = "NY" + i
+                    });
+                    await testContext.SaveChangesAsync();
+                }
+            }
+            return testContext;
+        }
+
+        [Fact]
+        public async Task Should_Return_All_Places()
+        {
+            //Arrange
+            var dbContext = await GetDatabaseContext();
+            var placesController = new PlacesController(dbContext);
+
+            //Act
+            var placesJSON = placesController.Get();
+            var places = JArray.Parse(placesJSON.Content);
+            var count = places.Count;
+
+            //Assert
+            Assert.Equal(_counter, count);
+        }
+
+        [Fact]
+        public async Task Should_Only_Return_Places_In_State_Searched()
+        {
+            // Arrange
+            var dbContext = await GetDatabaseContext();
+            var placesController = new PlacesController(dbContext);
 
             // Act
-            var actual = testController.Get();
+            var placesJSON = placesController.Get("NY1");
+            var places = JArray.Parse(placesJSON.Content);
+            var count = places.Count;
 
-            // Asset
-            Assert.IsType(expected, actual);
-
+            // Assert
+            Assert.Equal(1, count);
         }
     }
 }
+
 ```
 
-This file contains a unit test for the public method exposed on our SOAP controller. We set up a mock object to use for this test, to mimic the response we would get from a real SOAP service. 
+The first part of this file sets up a DB context that uses the Entity Framework in memory database and populates it with some test data. We then set up two different tests to test each route handled by our controller.
 
-When you run this test, it should fail. Next, we'll go back to our SOAP controller and implement the public method that will allow this test to pass.
+Save the file and then run the tests (note - you do not need to have your Docker instance of SQL Server running to run these tests):
 
-## Adding Service Details
-
-For this example, we're going to use a SOAP service from the US Geological Survey's [Grand Canyon Monitoring and Research Center](https://www.gcmrc.gov/). The details of the SOAP service can be [found here](https://www.gcmrc.gov/WebService.asmx). We're going to target the `GetLanguageList` method, which presumably just returns a list of languages.
-
-In the `SoapControllerTests.cs` file, edit the class to add a new private member to hold the name of the method we want to invoke (note - we'll revisit this when we talk about configuration for Web API applications in a future part of this tutorial):
-
-```csharp
-private string _methodName = "GetLanguageList";
+```bash
+~$ dotnet test
 ```
 
-Now, edit the public method of the `SoapController` class to call the SOAP service and format the response:
-
-```csharp
-public ContentResult Get(string methodName)
-{
-    XmlDocument doc = new XmlDocument();
-    doc.LoadXml(GetSoapResponse(_methodName));
-
-    var languageList = doc.GetElementsByTagName("GetLanguageListResult");
-
-    return Content(JsonConvert.SerializeObject(languageList), "application/json");
-}
-```
-
-This logic instantiates a new [`XMLDocument` object](https://msdn.microsoft.com/en-us/library/system.xml.xmldocument(v=vs.110).aspx) and loads in the response from the SOAP service we are calling. We then access a portion of the SOAP response by using the `GetElementsByTagName` method, and then we serialize the object as JSON and return it.
-
-When you go back to the `SoapControllerTest.cs` file we created in the previous step, you'll see that our unit test will now pass.
-
-Because we're using dependency injection for our SOAP controller, we need to register this in the `Startup.cs` file. Open that file, and in the `ConfigureServices` section, add the following logic:
-
-```csharp
-var ns = Environment.GetEnvironmentVariable("SOAP_NAMESPACE") ?? "http://tempuri.org/";
-var soap_endpoint = Environment.GetEnvironmentVariable("SOAP_ENDPOINT") ?? "https://www.gcmrc.gov/WebService.asmx";
-services.AddSingleton<ISoapConnector>(new SoapConnector(XNamespace.Get(ns), new Uri(soap_endpoint)));
-```
-
-Just like with the REST Connector we created in the last part, this will register a new `SoapConnector` instance for our Web API application when it's started so that it can be used in the SOAP controller.
-
-Now when you point your browser to `http://127.0.0.1:3000/api/soap` you'll see some content returned from the SOAP service formatted as JSON.
-
+All tests should run successfully.
 
 ## Review
 
 In this part, we discussed:
 
-* Setting up a new SOAP Connector class that uses the [`SoapHttpClient` package](https://www.nuget.org/packages/SoapHttpClient/).
-* Stubbing out a new SOAP controller, and writing unit tests.
-* Modifying the SOAP controller to make calls to an existing SOAP service.
-* Modifying the `Startup.cs` file to register dependency injection.
+* How to set up a test SQL Server instance using Docker.
+* How to reverse engineer our SQL Server instance to generate a Model and DB context class.
+* How to create a new SQL Controller class to access and serve data in SQL Server using Entity Framework.
+* How to create unit tests using the Entity Framework in memory database.
 
-
-The [next part](../../tree/part-5), we'll build on these lessons and create a new controller that access a SQL Server database. 
+In the [next part](../../tree/part-6), we'll use this same approach to explain how to access data in a legacy PostreSQL database. 
