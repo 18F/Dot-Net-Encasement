@@ -18,12 +18,12 @@ Beyond this, building a Web API application is a good way to learn to write C# c
 
 This tutorial is structured around git branches. Each step in the tutorial is contained within a distinct branch. If you are using the Github website, each step in the tutorial is linked from the `README` document in the previous step. To get the entire tutorial, and all of the related example code, just clone this repo. 
 
-* [Introduction](https://github.com/mheadd/WebApiTutorial/tree/master)
-* Part 1: [Setting up a new Web API application](https://github.com/mheadd/WebApiTutorial/tree/part-1)
-* Part 2: [Creating Web API Controller Tests](https://github.com/mheadd/WebApiTutorial/tree/part-2)
-* Part 3: [Creating a REST Controller](https://github.com/mheadd/WebApiTutorial/tree/part-3)
-* Part 4: [Creating a SOAP Controller](https://github.com/mheadd/WebApiTutorial/tree/part-4)
-* Part 5: [Creating a SQL Controller](https://github.com/mheadd/WebApiTutorial/tree/part-5) (Entity Framework / SQL Server)
+* [Introduction](../../tree/master)
+* Part 1: [Setting up a new Web API application](../../tree/part-1)
+* Part 2: [Creating Web API Controller Tests](../../tree/part-2)
+* Part 3: [Creating a REST Controller](../../tree/part-3)
+* Part 4: [Creating a SOAP Controller](../../tree/part-4)
+* Part 5: [Creating a SQL Controller](../../tree/part-5) (Entity Framework / SQL Server)
 * Part 6: Creating a SQL Controller (PostreSQL)
 * Part 7: Configuration Management in Web API.
 
