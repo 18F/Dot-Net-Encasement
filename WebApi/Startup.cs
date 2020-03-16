@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using WebApiTutorial.Connectors;
-using WebApiTutorial.Models;
+using WebApi.Connectors;
+using WebApi.Models;
 
 namespace WebApi
 {

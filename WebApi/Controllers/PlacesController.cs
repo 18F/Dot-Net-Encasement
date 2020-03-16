@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using WebApiTutorial.Models;
+using WebApi.Models;
 using System.Linq;
 
-namespace WebApiTutorial.Controllers
+namespace WebApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -18,7 +18,6 @@ namespace WebApiTutorial.Controllers
         [HttpGet]
         public ContentResult Get()
         {
-            using PlacesContext context = new PlacesContext();
             var addresses = _context.Places;
             return Content(FormatJson(addresses), "application/json");
         }
@@ -26,7 +25,6 @@ namespace WebApiTutorial.Controllers
         [HttpGet("search")]
         public ContentResult Get(string state)
         {
-            using PlacesContext context = new PlacesContext();
             var addresses = _context.Places
             .Where(a => a.State == state);
             return Content(FormatJson(addresses), "application/json");

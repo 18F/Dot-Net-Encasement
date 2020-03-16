@@ -1,9 +1,9 @@
 using System;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
-using WebApiTutorial.Connectors;
+using WebApi.Connectors;
 
-namespace WebApiTutorial.Controllers
+namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
     public class RestController : Controller
