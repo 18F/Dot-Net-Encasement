@@ -102,10 +102,10 @@ Following the pattern we've used previously, create a new file in the `Controlle
 ```csharp
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using WebApiTutorial.Models;
+using WebApi.Models;
 using System.Linq;
 
-namespace WebApiTutorial.Controllers
+namespace WebApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -167,8 +167,8 @@ In the new `PlacesTests.cs` file, put the following content:
 ```csharp
 using System;
 using Xunit;
-using WebApiTutorial.Controllers;
-using WebApiTutorial.Models;
+using WebApi.Controllers;
+using WebApi.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
