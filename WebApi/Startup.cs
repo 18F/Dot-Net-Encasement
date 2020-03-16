@@ -7,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using WebApi.Models;
 using WebApi.Connectors;
-using WebApi.Models;
 
 namespace WebApi
 {
