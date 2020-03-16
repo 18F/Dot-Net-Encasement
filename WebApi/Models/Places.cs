@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace WebApiTutorial.Models
+namespace WebApi.Models
 {
     [Table("places")]
     public partial class Places

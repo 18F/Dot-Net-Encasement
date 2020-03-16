@@ -5,7 +5,7 @@ using SoapHttpClient;
 using SoapHttpClient.Extensions;
 using SoapHttpClient.Enums;
 
-namespace WebApiTutorial.Connectors
+namespace WebApi.Connectors
 {
     public interface ISoapConnector
     {

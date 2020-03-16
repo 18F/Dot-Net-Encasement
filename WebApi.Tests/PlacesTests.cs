@@ -1,7 +1,7 @@
 using System;
 using Xunit;
-using WebApiTutorial.Controllers;
-using WebApiTutorial.Models;
+using WebApi.Controllers;
+using WebApi.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
@@ -33,7 +33,7 @@ namespace WebApi.Tests
                         LonD = 80,
                         LonM = 39,
                         LonS = 0,
-                        State = "NY" + i
+                        State = $"NY{i}"
                     });
                     await testContext.SaveChangesAsync();
                 }

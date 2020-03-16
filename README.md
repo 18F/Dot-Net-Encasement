@@ -1,8 +1,13 @@
+dotnet ef dbcontext scaffold 'Host=localhost;Database=TestDB;Username=TestDev;Password=Xj7hgrw@hn!49' Npgsql.EntityFrameworkCore.PostgreSQL -o Models -c InspectionsContext -d
+
+https://www.npgsql.org/efcore/
+
+
 # .NET Core / Web API Tutorial
 
-This part of the tutorial will cover development of a controller to enable access to an existing SQL Server database.
+This part of the tutorial will cover development of a controller to enable access to an existing PostgreSQL database.
 
-## Part 5: Creating a SQL Connector Class
+## Part 6: Creating a PostgreSQL Connector Class
 
 Before we can create our new controller, we need a SQL Server database to work with. The [Docker image for SQL Server](https://hub.docker.com/_/microsoft-mssql-server) makes this easy to do. The prebuilt `Dockerfile` in the Docker directory will create a new instance of SQL Server that you can use, and populate it with some dummy data.
 
@@ -167,8 +172,8 @@ In the new `PlacesTests.cs` file, put the following content:
 ```csharp
 using System;
 using Xunit;
-using WebApiTutorial.Controllers;
-using WebApiTutorial.Models;
+using WebApi.Controllers;
+using WebApi.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;

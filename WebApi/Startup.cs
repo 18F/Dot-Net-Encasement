@@ -5,8 +5,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using WebApiTutorial.Connectors;
-using WebApiTutorial.Models;
+using WebApi.Models;
+using WebApi.Connectors;
+using WebApi.Models;
 
 namespace WebApi
 {
@@ -40,6 +41,7 @@ namespace WebApi
             var soap_endpoint = Environment.GetEnvironmentVariable("SOAP_ENDPOINT") ?? "https://www.gcmrc.gov/WebService.asmx";
             services.AddSingleton<ISoapConnector>(new SoapConnector(XNamespace.Get(ns), new Uri(soap_endpoint)));
             services.AddSingleton<IPlacesContext>(new PlacesContext());
+            services.AddSingleton<IInspectionsContext>(new InspectionsContext());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

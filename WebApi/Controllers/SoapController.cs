@@ -1,9 +1,9 @@
 using System.Xml;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using WebApiTutorial.Connectors;
+using WebApi.Connectors;
 
-namespace WebApiTutorial.Controllers
+namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
     public class SoapController : Controller

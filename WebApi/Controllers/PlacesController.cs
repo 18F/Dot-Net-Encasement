@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using WebApiTutorial.Models;
+using WebApi.Models;
 using System.Linq;
 
-namespace WebApiTutorial.Controllers
+namespace WebApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
