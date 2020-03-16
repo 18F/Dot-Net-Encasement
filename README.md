@@ -102,10 +102,10 @@ Following the pattern we've used previously, create a new file in the `Controlle
 ```csharp
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using SqlApiTest.Models;
+using WebApiTutorial.Models;
 using System.Linq;
 
-namespace SqlApiTest.Controllers
+namespace WebApiTutorial.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
