@@ -81,9 +81,9 @@ In the new `SoapController.cs` file, add the following content:
 using System.Xml;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using WebApiTutorial.Connectors;
+using WebApi.Connectors;
 
-namespace WebApiTutorial.Controllers
+namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
     public class SoapController : Controller
@@ -130,8 +130,8 @@ In the new `SoapControllerTests.cs`, add the following content:
 ```csharp
 using System.Threading.Tasks;
 using Xunit;
-using WebApiTutorial.Controllers;
-using WebApiTutorial.Connectors;
+using WebApi.Controllers;
+using WebApi.Connectors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Tests

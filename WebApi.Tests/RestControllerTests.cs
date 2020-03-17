@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Xunit;
-using WebApiTutorial.Controllers;
-using WebApiTutorial.Connectors;
+using WebApi.Controllers;
+using WebApi.Connectors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Tests
