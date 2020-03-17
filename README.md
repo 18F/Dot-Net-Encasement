@@ -154,7 +154,7 @@ Save your work, and use `dotnet run` to start your app. Now, with your test data
 
 ## Writing Tests
 
-Switch over to the `WebApi.Tests` directory and create a new file called `PlacesTests.cs`.
+Switch over to the `WebApi.Tests` directory and create a new file called `PlacesControllerTests.cs`.
 
 Instead of writing tests against our SQL Server instance, we're going to use the [Entity Framework in memory database](https://docs.microsoft.com/en-us/ef/core/providers/in-memory/?tabs=dotnet-core-cli) for our unit tests. To do this, we'll need to add a new package.
 
