@@ -24,7 +24,7 @@ This tutorial is structured around git branches. Each step in the tutorial is co
 * Part 3: [Creating a REST Controller](../../tree/part-3)
 * Part 4: [Creating a SOAP Controller](../../tree/part-4)
 * Part 5: [Creating a SQL Controller](../../tree/part-5) (Entity Framework / SQL Server)
-* Part 6: Creating a SQL Controller (PostreSQL)
+* Part 6: [Creating a SQL Controller](../../tree/part-6) (Entity Framework / PostreSQL)
 * Part 7: Configuration Management in Web API.
 
 On your local machine, to see the complete code for each section in action, you should be able to `git checkout part-{number}` and run either `dotnet test` or `dotnet run`.
