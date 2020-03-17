@@ -113,7 +113,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
-namespace WebApiTutorial.Connectors
+namespace WebApi.Connectors
 {
     public interface IRestConnector
     {
@@ -156,9 +156,9 @@ Now we need to modify our `RestController.cs` to use this new connector class.
 using System;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
-using WebApiTutorial.Connectors;
+using WebApi.Connectors;
 
-namespace WebApiTutorial.Controllers
+namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
     public class RestController : Controller
@@ -226,8 +226,8 @@ In the new `RestControllerTests.cs` file, add the following content:
 ```csharp
 using System.Threading.Tasks;
 using Xunit;
-using WebApiTutorial.Controllers;
-using WebApiTutorial.Connectors;
+using WebApi.Controllers;
+using WebApi.Connectors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Tests
@@ -291,7 +291,7 @@ Now that we've created a separate connector class for our legacy REST API, and a
 Add a new using statement for the `Connectors` namespace.
 
 ```csharp
-using WebApiTutorial.Connectors;
+using WebApi.Connectors;
 ``` 
 
 In the `ConfigureServices` method, add the following:
