@@ -9,19 +9,19 @@ Before we can create our new controller, we need a SQL Server database to work w
 Use the same commands to build and run the Docker image as we used in the last section:
 
 ```bash
-~$ docker build -t {user-name}/sql-server-test -f Dockerfile .
-~$ docker run -p 1433:1433 {user-name}/sql-server-test
+~$ docker build -t {user-name}/postgres-test -f Dockerfile .
+~$ docker run -p 5432:5432 {user-name}/postgres-test
 ```
 
 Now that we have a running instance of PostgreSQL, we can create our SQL Connector and object model.
 
-We're going to reuse Entity Framework Core to access the PostgreSQL database, just ass we did in the last section. We'll need to install another package from Nuget for this. If you have the [Nuget Package Manager extension](https://marketplace.visualstudio.com/items?itemName=jmrog.vscode-nuget-package-manager) for VS Code installed, you can find and install these packages that way. Or, you can simply use the `dotnet` CLI to install them as we've done before.
+We're going to use Entity Framework Core to access the PostgreSQL database, just as we did in the last section. We'll need to install another package from Nuget for this. If you have the [Nuget Package Manager extension](https://marketplace.visualstudio.com/items?itemName=jmrog.vscode-nuget-package-manager) for VS Code installed, you can find and install this package that way. Or, you can simply use the `dotnet` CLI to install them as we've done before.
 
 ```bash
 ~$ dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL
 ```
 
-Just s we did in the lat section, we'll use Entity Framework Core tools to "reverse engineer" our database and generate models and a DB context for us.
+Just as we did in the lat section, we'll use Entity Framework Core tools to "reverse engineer" our database and generate models and a DB context for us.
 
 ```bash
 ~$ dotnet ef dbcontext scaffold 'Host=localhost;Database=TestDB;Username={user};Password={your-password}' Npgsql.EntityFrameworkCore.PostgreSQL -o Models -c InspectionsContext -d
